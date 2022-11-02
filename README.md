@@ -2,6 +2,8 @@
 
 **p5LearnableProgramming** is an experiment and an attempt at showing how code runs into a typical p5.js program, showing how instructions are intepretated in addition to show program state. It was writtent with p5.js itself. 
 
+You can try a few examples here 👉 https://v3ga.net/p5LearnableProgramming/index_U2_L2_loop.php
+
 <img src="p5Learnable_grid.jpg" />
 
 ## References

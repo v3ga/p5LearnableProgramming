@@ -8,7 +8,8 @@ You can try a few examples here :
 * [Rect command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_rects.php)
 * [Triangle command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_triangle.php)
 * [Arc command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_arcs.php)
-* [For loop structure](https://v3ga.net/p5LearnableProgramming/index_U2_L2_loop.php) 
+* [For loop structure with circles](https://v3ga.net/p5LearnableProgramming/index_U2_L2_loop.php) 
+* [For loop structure with arcs](https://v3ga.net/p5LearnableProgramming/index_U2_L2_loop_arcs.php) 
 * [Imbricated For loops](https://v3ga.net/p5LearnableProgramming/index_U3_L1_grid.php)
 
 <img src="p5Learnable_grid.jpg" />

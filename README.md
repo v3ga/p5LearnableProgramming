@@ -16,3 +16,4 @@ You can try a few examples here :
 ## References
 * Bret Victor — [Learnable Programming](http://worrydream.com/LearnableProgramming/)<br />*Designing a programming system for understanding programs*
 * [p5.js](https://p5js.org/)<br />*p5.js is a JavaScript library for creative coding, with a focus on making coding accessible and inclusive for artists, designers, educators, beginners, and anyone else!*
+* [3blue1brown](https://www.3blue1brown.com/)<br />*3blue1brown, or 3b1b for short, is primarily a YouTube channel about discovery and creativity in math.*

@@ -23,3 +23,12 @@ You can try a few examples here :
 * [esprima.js](https://esprima.org)<br />*Esprima is a high performance, standard-compliant ECMAScript parser written in ECMAScript (also popularly known as JavaScript).*
 * [anime.js](https://animejs.com)<br />*Anime.js (/ˈæn.ə.meɪ/) is a lightweight JavaScript animation library with a simple, yet powerful API.*
 * [Relief-SingleLine](https://github.com/isdat-type/Relief-SingleLine)<br />*Relief SingleLine is a versatile sans serif “single-line” font with open paths oriented towards CNC (Computer Numerical Control) engraving and fab labs environments.*
+
+## Ideas, TODOs
+* parsing code into html. I was unable to "extract" the parser of [the online editor](https://editor.p5js.org/) which would be ideal. For the moment I used [esprima.js parser and some custom code](https://v3ga.net/p5LearnableProgramming/index_parsing_test.php), though most of the examples were hand written (and it's a very tedious task). 
+* implement the parsing of 
+  * IF , WHILE , FUNCTION structures 
+* implement play / pause functionnalities.
+* visualize program state variables : background color, fill color , stroke color, frameCount, ... 
+* implement more functions from the p5js library. Here are the implement ones 👉 https://github.com/v3ga/p5LearnableProgramming/blob/master/p5CommandFactory.js 
+* Error handling would be awesome. 

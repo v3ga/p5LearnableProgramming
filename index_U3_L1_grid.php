@@ -37,9 +37,9 @@
 <script>
     var options = 
     {
-        drawOrigin        : false,
-        drawAxes          : false,
-        drawCrossPosition : false,
+        drawOrigin        : true,
+        drawAxes          : true,
+        drawCrossPosition : true,
         colorGrid         : [255,255,255],
         showVariables     : true 
     }

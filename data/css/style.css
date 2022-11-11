@@ -26,6 +26,10 @@ canvas
   display: block;
 }
 
+pre{
+  margin:     0;
+}
+
 body
 {
   font-family: Inconsolata,monospace;    
@@ -168,6 +172,12 @@ body
 .container-variables > .title
 {
   padding:            1em 0 1em 0;
+}
+
+.mark.mark-value
+{
+  color: white;
+  opacity:    0.75;
 }
 
 /*  LOOPS */

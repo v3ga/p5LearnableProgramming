@@ -13,6 +13,8 @@ function makeGraphic(command)
         return new p5Background(command);
     else if (command.name == "strokeWeight")
         return new p5StrokeWeight(command);
+    else if (command.name == "stroke")
+        return new p5Stroke(command);
     else if (command.name == "noStroke")
         return new p5NoStroke(command);
     else if (command.name == "fill")

@@ -85,6 +85,19 @@ class p5StrokeWeight extends p5GraphicElement
     }
 }
 
+
+class p5Stroke extends p5GraphicElement
+{
+    constructor(command)
+    {
+        super(command);
+    }
+
+    draw()
+    {
+    }
+}
+
 class p5NoStroke extends p5GraphicElement
 {
     constructor(command)
@@ -391,6 +404,8 @@ class p5Arc extends p5GraphicElement
         this.aendTarget     = command.getParameterValue("aend");
         this.bDrawEllipse   = false;
         this.bDrawDiameter  = false;
+        this.bDrawAngle     = true;
+        this.drawAngleDiam  = 40;
     }
 
     beginAnimation()
@@ -408,17 +423,17 @@ class p5Arc extends p5GraphicElement
             w : this.wTarget,
             h : this.hTarget,
             duration : 500,
-            begin : () => { this.bDrawEllipse = true; this.bDrawDiameter = true; this.command.highlightParameters( ["w", "h"] ) }
+            begin : () => { this.bDrawEllipse = true; this.bDrawDiameter = true; this.bDrawAngle=true; this.command.highlightParameters( ["w", "h"] ) }
         })
         .add({
             targets : this,
             aend : this.aendTarget,
             duration : 500,
             begin : () => { this.command.highlightParameters( ["astart", "aend"] ) },
-            complete: () => {this.bDrawEllipse=false ; this.bDrawDiameter = false; }
+            complete: () => {this.bDrawEllipse=false ; this.bDrawDiameter = false;  }
         }
         )
-        .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { this.bDrawDiameter = false}
+        .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { this.bDrawDiameter = false; this.bDrawAngle = false;}
         })
 
         return t.finished;
@@ -441,8 +456,39 @@ class p5Arc extends p5GraphicElement
             pop();            
         }
 
+        if (this.bDrawAngle && abs(this.aend-this.astart) >= 1)
+        {
+            push();
+            stroke(200,0,0);
+            strokeWeight(1);
+            noFill();
+            line(0,0,0.5*this.w*cos(this.astart),0.5*this.h*sin(this.astart))
+            line(0,0,0.5*this.w*cos(this.aend),0.5*this.h*sin(this.aend))
+            arc( 0, 0, this.drawAngleDiam, this.drawAngleDiam, this.astart,this.aend );
+            pop();
+        
+            if ( this.w > (this.drawAngleDiam + 60) )
+            {
+                push();
+                rotate(this.aend);
+                
+                let str_aend = ""+int(this.aend)+"°";
+                g.font.textSize(g.myCanvas.fontSize);
+                //let vW = g.font.textWidth(str_aend);
+                // g.font.fill(`rgba(200,0.0,0.0,${this.diameterOpacity/255.0})`);
+                fill(255,0,0);
+                g.font.text(str_aend,this.drawAngleDiam/2+4,-4);
+        
+                pop();
+    
+            }
+        
+        }
+
+
         stroke(0); // TODO : state stroke
-        fill(255); // TODO : state fill
+        // fill(255); // TODO : state fill
+        noFill();
         if (this.aend >= this.astart+0.5)
             arc(0, 0, this.w, this.h, this.astart,this.aend);
 
@@ -451,6 +497,7 @@ class p5Arc extends p5GraphicElement
             this.drawDiameterH(0,0,this.w);
         }            
             
+
 
         pop();
         g.myCanvas.endDraw();

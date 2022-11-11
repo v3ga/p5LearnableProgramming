@@ -20,5 +20,6 @@ You can try a few examples here :
 * [3blue1brown](https://www.3blue1brown.com/)<br />*3blue1brown, or 3b1b for short, is primarily a YouTube channel about discovery and creativity in math.*
 
 ## Ressources
-* [anime.js](https://animejs.com/)<br />*Anime.js (/ˈæn.ə.meɪ/) is a lightweight JavaScript animation library with a simple, yet powerful API.*
+* [esprima.js](https://esprima.org)<br />*Esprima is a high performance, standard-compliant ECMAScript parser written in ECMAScript (also popularly known as JavaScript).*
+* [anime.js](https://animejs.com)<br />*Anime.js (/ˈæn.ə.meɪ/) is a lightweight JavaScript animation library with a simple, yet powerful API.*
 * [Relief-SingleLine](https://github.com/isdat-type/Relief-SingleLine)<br />*Relief SingleLine is a versatile sans serif “single-line” font with open paths oriented towards CNC (Computer Numerical Control) engraving and fab labs environments.*

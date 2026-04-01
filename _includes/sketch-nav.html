@@ -1,4 +1,4 @@
-{% assign sorted_sketches = site.sketches | sort: 'order' | where: 'published', true %}
+{% assign sorted_sketches = site.sketches | where: 'published', true | sort: 'title' %}
 <select id="select-scripts">
 {% for sketch in sorted_sketches %}
     <option value="{{ sketch.url | relative_url }}">{{ sketch.title }}</option>

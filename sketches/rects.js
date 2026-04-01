@@ -5,6 +5,7 @@ function setup(){
 function draw()
 {
 	background(220);
+	strokeWeight(2);
 	rect(50,50,200,200);
 	rect(50,250,200,200);
 	rect(250,250,200,200);

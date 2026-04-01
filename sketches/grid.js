@@ -7,6 +7,7 @@ function setup(){
 function draw(){
 	background(220);
 	noFill();
+	strokeWeight(5);
 	for(let j=0; j<4; j++){
 		for(let i=0; i<4; i++){
 			circle(50 + d*(0.5+i),50 + d*(0.5+j), d);

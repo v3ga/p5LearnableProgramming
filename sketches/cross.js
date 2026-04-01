@@ -4,21 +4,21 @@ function setup(){
 
 function draw(){
 	background(220);
-    strokeWeight(5);
-	star(0,0);
-	star(20,20);
+    noStroke();
+	fill(0);
+	cross(250,250,300);
+	fill(127);
+	cross(250,250,200);
+	fill(255);
+	cross(250,250,100);
 }
 
-function star(x,y)
+function cross(x,y,s)
 {
 	push();
 	translate(x,y);
-	beginShape();
-	vertex(100,50);
-	vertex(400,100);
-	vertex(450,300);
-	vertex(200,450);
-	vertex(150,200);
-	endShape(CLOSE);
+	rectMode(CENTER);
+	rect(0,0,s,s/4);
+	rect(0,0,s/4,s);
 	pop();
 }

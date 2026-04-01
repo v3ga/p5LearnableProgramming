@@ -2,15 +2,7 @@
 
 **p5LearnableProgramming** is an experiment and an attempt at showing how code runs into a typical p5.js program, showing how instructions are intepreted in addition to show program state. It was written with p5.js itself. 
 
-You can try a few examples here : 
-* [Line command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_lines.php)
-* [Circle command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_circles.php)
-* [Rect command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_rects.php)
-* [Triangle command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_triangle.php)
-* [Arc command](https://v3ga.net/p5LearnableProgramming/index_U2_L2_arcs.php)
-* [For loop structure with circles](https://v3ga.net/p5LearnableProgramming/index_U2_L2_loop.php) 
-* [For loop structure with arcs](https://v3ga.net/p5LearnableProgramming/index_U2_L2_loop_arcs.php) 
-* [Imbricated For loops](https://v3ga.net/p5LearnableProgramming/index_U3_L1_grid.php)
+You can try a few examples here : https://v3ga.github.io/p5LearnableProgramming/
 
 <img src="p5Learnable_grid.jpg" />
 
@@ -25,9 +17,6 @@ You can try a few examples here :
 * [Relief-SingleLine](https://github.com/isdat-type/Relief-SingleLine)<br />*Relief SingleLine is a versatile sans serif “single-line” font with open paths oriented towards CNC (Computer Numerical Control) engraving and fab labs environments.*
 
 ## Ideas, TODOs
-* parsing code into html. I was unable to "extract" the parser of [the online editor](https://editor.p5js.org/) which would be ideal. For the moment I used [esprima.js parser and some custom code](https://v3ga.net/p5LearnableProgramming/index_parsing_test.php), though most of the examples were hand written (and it's a very tedious task). 
-* implement the parsing of 
-  * IF , WHILE , FUNCTION structures 
 * implement play / pause functionnalities.
 * visualize program state variables : background color, fill color , stroke color, frameCount, ... 
 * implement more functions from the p5js library. Here are the implement ones 👉 https://github.com/v3ga/p5LearnableProgramming/blob/master/p5CommandFactory.js 

@@ -192,6 +192,11 @@ body
   border-color:     #0ff;
 }
 
+#btn-restart
+{
+  display: none;
+}
+
 .column.canvas #p5Canvas-container
 {
   flex:             1;

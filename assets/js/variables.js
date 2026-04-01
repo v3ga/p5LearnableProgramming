@@ -5,7 +5,7 @@ class Variables
         this.elmt = elmt;
         this.userVars = new Map();
         this.p5Vars = new Map();
-        this.activeTab = "user";
+        this.activeTab = "p5";
         this.minSlots = 7;
         this._buildUi();
     }
@@ -17,8 +17,8 @@ class Variables
 
         this.tabs = $(
             '<div class="variables-tabs"><span class="title">Variables</span>' +
-            '  <button type="button" class="variables-tab" data-tab="p5">p5</button>' +
-            '  <button type="button" class="variables-tab active" data-tab="user">user</button>' +
+            '  <button type="button" class="variables-tab active" data-tab="p5">p5</button>' +
+            '  <button type="button" class="variables-tab" data-tab="user">user</button>' +
             '</div>'
         );
 
@@ -38,7 +38,7 @@ class Variables
         this.tabs.find('.variables-tab[data-tab="user"]').on("click", () => this.setActiveTab("user"));
         this.tabs.find('.variables-tab[data-tab="p5"]').on("click", () => this.setActiveTab("p5"));
 
-        this.setActiveTab("user");
+        this.setActiveTab("p5");
     }
 
     _safeId(name)

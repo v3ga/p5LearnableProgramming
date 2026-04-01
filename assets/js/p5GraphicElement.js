@@ -260,6 +260,7 @@ class p5Circle extends p5GraphicElement
         circle(this.x, this.y, this.d );
         push();
         stroke(200,0,0);
+        strokeWeight(1);
         fill(200,0,0);
         translate(this.x,this.y);
         if (this.bDrawDiameter && this.d>=5)
@@ -326,9 +327,12 @@ class p5Rect extends p5GraphicElement
             strokeWeight(1);
             fill(200,0,0);
     
-            //let xOffset = g.interpreter.p5State.rectMode;
-            let xOffset = -0.5*this.w;
-            let yOffset = -0.5*this.h;
+            let xOffset = 0, yOffset=0;
+            if (g.interpreter.p5State.rectMode == "CENTER")
+            {
+                xOffset = -0.5*this.w;
+                yOffset = -0.5*this.h;
+            }
 
             push();
             translate(xOffset,yOffset-pad)

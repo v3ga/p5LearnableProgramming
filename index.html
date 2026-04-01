@@ -1,0 +1,14 @@
+---
+layout: null
+---
+{% assign first_sketch = site.sketches | sort: 'order' | first %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; url={{ first_sketch.url | relative_url }}">
+</head>
+<body>
+    <p>Redirecting to <a href="{{ first_sketch.url | relative_url }}">first sketch</a>...</p>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="{{ site.baseurl }}/assets/js/jquery.min.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/anime.min.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/esprima.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/fontMonoline.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/variables.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5Registry.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/ExecutionController.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5Command.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandComment.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5UserFunctionRunner.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandReturn.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandVariableDef.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandFunctionCall.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandMethodCall.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5FunctionParameter.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandList.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5LoopFor.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5WhileLoop.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5IfElse.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CommandAssignment.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CallStack.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5PanelSlider.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5Program.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5GraphicElement.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5Interpreter.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/myCanvas.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/p5CodeParser.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/assets/css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="column sketch">
+
+        <div class="title">{% include sketch-nav.html %}</div>
+        <div id="call-stack"></div>
+        <div id="p5Sketch">
+        </div>
+
+        {% assign opts = page.options %}
+        <script>
+            var options = {
+                drawOrigin        : {% if opts and opts.drawOrigin == false %}false{% else %}true{% endif %},
+                drawAxes          : {% if opts and opts.drawAxes == false %}false{% else %}true{% endif %},
+                drawCrossPosition : {% if opts and opts.drawCrossPosition == false %}false{% else %}true{% endif %},
+                colorGrid         : {% if opts.colorGrid %}{{ opts.colorGrid | jsonify }}{% else %}[0,0,0]{% endif %},
+                showVariables     : {% if opts and opts.showVariables == true %}true{% else %}false{% endif %}
+            };
+        </script>
+
+        <div class="container-variables">
+            <!--
+            <div class="title">Variables</div>
+            -->
+            <div class="table-variables">
+                <table>
+                </table>
+            </div>
+        </div>
+
+      </div>
+
+      <div class="column canvas">
+          <div class="playback-controls">
+              <button id="btn-play" class="btn-playback" title="Play"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="none"  stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play-icon lucide-play"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg></button>
+              <button id="btn-pause" class="btn-playback" title="Pause"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black" stroke="none"  stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause"><rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/></svg></button>
+              <button id="btn-step" class="btn-playback" title="Step"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-forward-icon lucide-step-forward"><path fill="black" stroke="none" d="M10.029 4.285A2 2 0 0 0 7 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/><path d="M3 4v16"/></svg></button>
+              <button id="btn-restart" class="btn-playback" title="Restart"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+          </div>
+          <div id="p5Canvas-container"></div>
+      </div>
+    </div>
+
+    {% for s in page.scripts %}
+    <script src="{{ site.baseurl }}/sketches/{{ s }}"></script>
+    {% endfor %}
+    <script>
+        var sketchFile = "{{ site.baseurl }}/sketches/{{ page.sketch }}";
+        {% if page.scripts %}
+        var sketchScripts = [{% for s in page.scripts %}"{{ site.baseurl }}/sketches/{{ s }}"{% unless forloop.last %},{% endunless %}{% endfor %}];
+        {% endif %}
+        {% if page.illustrate %}
+        var sketchIllustrate = {{ page.illustrate | jsonify }};
+        {% endif %}
+    </script>
+    <script src="{{ site.baseurl }}/assets/js/sketch.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{% assign sorted_sketches = site.sketches | sort: 'order' | where: 'published', true %}
+<select id="select-scripts">
+{% for sketch in sorted_sketches %}
+    <option value="{{ sketch.url | relative_url }}">{{ sketch.title }}</option>
+{% endfor %}
+</select>
+<script>
+    let currentPath = location.pathname.replace(/\/$/, '');
+    $("#select-scripts option").each(function() {
+        let optPath = $(this).val().replace(/\/$/, '');
+        if (currentPath === optPath || currentPath.endsWith(optPath)) {
+            $(this).prop('selected', true);
+        }
+    });
+    $("#select-scripts").change(function(){ window.location = $(this).val(); });
+</script>

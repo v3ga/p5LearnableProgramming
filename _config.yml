@@ -1,0 +1,31 @@
+title: p5 Learnable Programming
+description: Visualize step by step how a p5.js program works
+baseurl: ""
+url: ""
+
+collections:
+  sketches:
+    output: true
+    permalink: /sketch/:name/
+
+defaults:
+  - scope:
+      path: "_sketches"
+      type: "sketches"
+    values:
+      layout: sketch
+      published: true
+      setup: basic
+      options:
+        drawOrigin: true
+        drawAxes: true
+        drawCrossPosition: true
+        colorGrid: [0,0,0]
+        showVariables: false
+
+exclude:
+  - _temp
+  - "*.php"
+  - Gemfile.lock
+  - README.md
+  - node_modules

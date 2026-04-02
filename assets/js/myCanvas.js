@@ -16,7 +16,6 @@ class MyCanvas
         this.padding        = 8;
         this.sizeArrow      = 5;
 
-
         this.posLines       = createVector();
         
         // Used for beginShape / endShape
@@ -25,6 +24,7 @@ class MyCanvas
         // Axe length
         this.lenAxe         = 0.5*this.dim.x / this.resGrid;
         this.posAxe         = createVector();
+        this.rotAxe         = 0; // degrees
 
         // Drawing options
         this.options        = 
@@ -45,6 +45,7 @@ class MyCanvas
         this.shapeGfx  = [];
         this.posAxe.set(0,0);
         this.posLines.set(0,0);
+        this.rotAxe=0;
     }
 
     addShapeGfx(shapeGfx)
@@ -78,17 +79,18 @@ class MyCanvas
         this.beginDraw();
 
         push();
-        
+        translate(this.posAxe.x,this.posAxe.y);
+        rotate(this.rotAxe);
         stroke( this.colorGrid );
         strokeWeight(1);
 
         let step = this.dim.x / this.resGrid;
-        for (let x=0; x<=this.dim.x; x+=step)
-            line(x,0,x,this.dim.y);
+        for (let x=-this.dim.x; x<=this.dim.x; x+=step)
+            line(x,-this.dim.y,x,this.dim.y);
 
         step = this.dim.y / this.resGrid;
-        for (let y=0; y<=this.dim.y; y+=step)
-            line(0,y,this.dim.x,y);
+        for (let y=-this.dim.y; y<=this.dim.y; y+=step)
+            line(-this.dim.x,y,this.dim.x,y);
 
         pop();
 
@@ -113,19 +115,22 @@ class MyCanvas
         
                 // Mark X
                 push();
-                translate(this.posAxe.x+x,0);
+                translate(this.posAxe.x+x,this.posAxe.y);
+                rotate(this.rotAxe);
                 line(0,0,0,this.lenAxe/2);
                 pop();
         
                 // Mark Y
                 push();
-                translate(0,this.posAxe.y+y);
+                translate(this.posAxe.x,this.posAxe.y+y);
+                rotate(this.rotAxe);
                 line(0,0,this.lenAxe/2,0);
                 pop();
 
                 // Cross
                 push();
                 translate(this.posAxe.x,this.posAxe.y);
+                rotate(this.rotAxe);
                 line(x,y-this.lenAxe/4,x,y+this.lenAxe/4);
                 line(x-this.lenAxe/4,y,x+this.lenAxe/4,y);
                 pop();
@@ -138,12 +143,20 @@ class MyCanvas
         let sx = `${int(x)}`;
         let wX = g.font.textWidth(sx);
         g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("x", x)})`);
-        g.font.text(sx,this.posAxe.x+x-wX/2,-this.padding-5);
+        push();
+        translate(this.posAxe.x+x-wX/2,this.posAxe.y-this.padding-5);
+        rotate(this.rotAxe);
+        g.font.text(sx,0,0);
+        pop();
 
-        let sy = `${int(x)}`;
+        let sy = `${int(y)}`;
         let wY = g.font.textWidth(sy);
         g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("y",y)})`);
-        g.font.text(sy,-this.padding-wY-2,this.posAxe.y+y+4);
+        push();
+        translate(this.posAxe.x-this.padding-wY-2,this.posAxe.y+y+4);
+        rotate(this.rotAxe);
+        g.font.text(sy,0,0);
+        pop();
 
         this.endDraw();
     }
@@ -155,10 +168,8 @@ class MyCanvas
         {
             let a = axe=="x" ? pos : 0; 
             let b = axe=="x" ? 0 : pos; 
-            if (dist(a,b,this.posAxe.x,this.posAxe.y)<=1.1*this.lenAxe)
+            if (dist(this.posAxe.x+a,this.posAxe.y+b,this.posAxe.x,this.posAxe.y)<=1.1*this.lenAxe)
                 return 0;
-//            if (Math.abs(pos) <= 1.1*this.lenAxe )
-  //              return 0.0;
         }
 
         return 1.0;        
@@ -180,6 +191,7 @@ class MyCanvas
 
         push();
         translate( this.posAxe.x, this.posAxe.y);
+        rotate(this.rotAxe);
 
         if (o.drawOrigin)
         {

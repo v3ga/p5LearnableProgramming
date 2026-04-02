@@ -85,13 +85,13 @@ class p5Background extends p5GraphicElement
 
     draw()
     {
-        g.myCanvas.beginDraw();
+        //g.myCanvas.beginDraw();
         push();
         noStroke();
         fill( this.command.getParameterValue("grey") );
         rect(0,0,g.myCanvas.dim.x,g.myCanvas.dim.y);
         pop();
-        g.myCanvas.endDraw();
+        //g.myCanvas.endDraw();
 
     }
 }
@@ -313,7 +313,7 @@ class p5Rect extends p5GraphicElement
 
     draw()
     {
-        g.myCanvas.beginDraw();
+        //g.myCanvas.beginDraw();
 
         push();
         translate(this.x,this.y);
@@ -372,7 +372,7 @@ class p5Rect extends p5GraphicElement
 
         }
         pop();
-        g.myCanvas.endDraw();
+        //g.myCanvas.endDraw();
     }
 }
 
@@ -754,8 +754,8 @@ class p5Translate extends p5GraphicElement
         t
         .add({
             targets : g.myCanvas.posAxe,
-            x : this.x,
-            y : this.y,
+            x : g.myCanvas.posAxe.x+this.x,
+            y : g.myCanvas.posAxe.y+this.y,
             duration : 750,
             begin : () => { this.command.highlightParameters( ["x","y"] ) },
             complete: () => { this.bAnimDone = true }
@@ -773,6 +773,38 @@ class p5Translate extends p5GraphicElement
     }
 
 }
+
+class p5Rotate extends p5GraphicElement
+{
+    constructor(command)
+    {
+        super(command);
+        this.angle = command.getParameterValue(`angle`);
+        this.bAnimDone = false;
+    }
+
+    beginAnimation()
+    {
+        let t = this.makeTimeline();
+        t
+        .add({
+            targets : g.myCanvas,
+            rotAxe : g.myCanvas.rotAxe + this.angle,
+            duration : 750,
+            begin : () => { this.command.highlightParameters( ["angle"] ) },
+            complete: () => { this.bAnimDone = true }
+        })
+
+        return this._playTimeline(t);        
+    }
+
+    draw()
+    {
+        rotate(this.bAnimDone ? this.angle : g.myCanvas.rotAxe);
+    }
+}
+
+
 
 class p5Push extends p5GraphicElement
 {
@@ -815,5 +847,6 @@ p5Reg.register("beginShape",   { params: [],                                    
 p5Reg.register("vertex",       { params: ["x","y"],                              createGraphic: cmd => new p5Vertex(cmd) });
 p5Reg.register("endShape",     { params: ["mode"],                               createGraphic: cmd => new p5EndShape(cmd) });
 p5Reg.register("translate",    { params: ["x","y"],                              createGraphic: cmd => new p5Translate(cmd) });
+p5Reg.register("rotate",       { params: ["angle"],                              createGraphic: cmd => new p5Rotate(cmd) });
 p5Reg.register("push",         { params: [],                                     createGraphic: cmd => new p5Push(cmd) });
 p5Reg.register("pop",          { params: [],                                     createGraphic: cmd => new p5Pop(cmd) });

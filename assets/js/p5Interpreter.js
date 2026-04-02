@@ -260,9 +260,11 @@ class p5Interpreter
         
         // Background
         push();
+        g.myCanvas.beginDraw();
         g.myCanvas.draw();
         // Animated elements
         this.graphics.forEach(gfx => gfx.draw());
+        g.myCanvas.endDraw();
         pop();
 
         // Sketches elements

@@ -7,4 +7,5 @@ options:
   drawAxes: true
   drawCrossPosition: true
   showVariables: true
+  runMode: true
 ---

@@ -5,8 +5,9 @@ function setup(){
 
 function draw(){
 	background(220);
-    translate(250,250);
-    rotate(45);
     rectMode(CENTER);
+    translate(250,250);
+    rotate(15);
+    scale(1.5);
     square(0,0,200);
 }

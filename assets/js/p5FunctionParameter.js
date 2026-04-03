@@ -89,7 +89,8 @@ class p5FunctionParameter
                 result = (typeof fn === "function") ? fn(...args) : 0;
 
                 // Animate the random value selection
-                await this._animateRandom(result, args, controller);
+                if (!controller.runMode)
+                    await this._animateRandom(result, args, controller);
             }
             else
             {

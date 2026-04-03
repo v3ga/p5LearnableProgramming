@@ -39,7 +39,7 @@ class p5CommandVariableDef extends p5Command
 
     async execute(controller)
     {
-        this.highlight();
+        if (!controller.runMode) this.highlight();
         await controller.gate();  // step: see declaration highlighted
 
         // Resolve embedded steppable calls if any
@@ -55,7 +55,8 @@ class p5CommandVariableDef extends p5Command
                 {
                     let fn = window[call.funcName];
                     result = (typeof fn === "function") ? fn(...args) : 0;
-                    await p5FunctionParameter.animateRandom(result, args, controller, this.elmtValue);
+                    if (!controller.runMode)
+                        await p5FunctionParameter.animateRandom(result, args, controller, this.elmtValue);
                 }
                 else
                 {

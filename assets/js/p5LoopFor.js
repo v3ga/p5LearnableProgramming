@@ -73,7 +73,7 @@ class p5LoopFor extends p5Command
 
     async execute(controller)
     {
-        this.highlight();
+        if (!controller.runMode) this.highlight();
 
         // Step 1: init variable
         this.variableValue = this.initVal;
@@ -101,19 +101,31 @@ class p5LoopFor extends p5Command
 
             // Step N: eval condition
             let condOk = this.variableValue < this.nbLoopMax;
-            await this.animateCondition(condOk, controller);
-            await controller.gate();  // see condition result (👌 or 👎)
+            if (!controller.runMode)
+            {
+                await this.animateCondition(condOk, controller);
+                await controller.gate();
+            }
 
             if (!condOk) break;
 
             // Step N+1..M: run body commands (each has its own gates)
-            this.unhighlight();
+            if (!controller.runMode) this.unhighlight();
             await this.commandList.executeCommands(controller);
-            this.highlight();
+            if (!controller.runMode) this.highlight();
 
             // Step M+1: eval update (i++)
-            await this.evalUpdate(controller);
-            await controller.gate();  // see update result
+            if (!controller.runMode)
+            {
+                await this.evalUpdate(controller);
+                await controller.gate();
+            }
+            else
+            {
+                this.variableValue++;
+                window[this.varName] = this.variableValue;
+                g.interpreter.updateVariableValue(this.varName, this.variableValue);
+            }
 
             iteration++;
         }

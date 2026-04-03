@@ -86,32 +86,35 @@ class p5IfElse extends p5Command
             let branch = this.branches[i];
             let isElse = (branch.conditionText === null);
 
-            this.highlight();
+            if (!controller.runMode) this.highlight();
             await controller.gate();
 
             if (isElse)
             {
                 // Pure else — always runs if we reach it
-                this.unhighlight();
+                if (!controller.runMode) this.unhighlight();
                 await branch.commands.executeCommands(controller);
-                this.highlight();
+                if (!controller.runMode) this.highlight();
                 return;
             }
 
             let condOk = this._evalCondition(branch.conditionText);
-            await this._animateCondition(condOk, controller, this.elmtConditions[i]);
-            await controller.gate();
+            if (!controller.runMode)
+            {
+                await this._animateCondition(condOk, controller, this.elmtConditions[i]);
+                await controller.gate();
+            }
 
             if (condOk)
             {
-                this.unhighlight();
+                if (!controller.runMode) this.unhighlight();
                 await branch.commands.executeCommands(controller);
-                this.highlight();
+                if (!controller.runMode) this.highlight();
                 return;
             }
 
             // Condition false → move to next branch
-            this.unhighlight();
+            if (!controller.runMode) this.unhighlight();
         }
     }
 

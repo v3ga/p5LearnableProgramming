@@ -14,6 +14,7 @@ class ExecutionController
     {
         this.paused     = false;
         this.speed      = 1.0;
+        this.runMode    = false;
         this._resolve   = null;
         this._stepMode  = false;
         this._aborted   = false;
@@ -74,6 +75,7 @@ class ExecutionController
     {
         this._aborted   = false;
         this.paused     = false;
+        this.runMode    = false;
         this._stepMode  = false;
         this._resolve   = null;
         this._activeTimeline = null;
@@ -98,6 +100,7 @@ class ExecutionController
     async gate()
     {
         if (this._aborted) throw new AbortError();
+        if (this.runMode) return;
 
         if (this._stepMode)
         {
@@ -117,6 +120,7 @@ class ExecutionController
     /** Scale a base duration by current speed + behavior speed */
     scaleDuration(baseDuration)
     {
+        if (this.runMode) return 0;
         let behaviorSpeed = this.currentBehavior.speed || 1.0;
         return Math.max(10, baseDuration / (this.speed * behaviorSpeed));
     }
@@ -125,6 +129,9 @@ class ExecutionController
 
     getLoopBehavior(iteration, total)
     {
+        if (this.runMode)
+            return { mode: "detail", speed: 1000 };
+
         if (iteration < this.loopStrategy.detailSteps)
         {
             return { mode: "detail", speed: this.speed };

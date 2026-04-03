@@ -25,6 +25,7 @@ class MyCanvas
         this.lenAxe         = 0.5*this.dim.x / this.resGrid;
         this.posAxe         = createVector();
         this.rotAxe         = 0; // degrees
+        this.scaleAxe       = createVector(1.,1.);
 
         // Drawing options
         this.options        = 
@@ -46,6 +47,7 @@ class MyCanvas
         this.posAxe.set(0,0);
         this.posLines.set(0,0);
         this.rotAxe=0;
+        this.scaleAxe.set(1.,1.);
     }
 
     addShapeGfx(shapeGfx)
@@ -81,16 +83,23 @@ class MyCanvas
         push();
         translate(this.posAxe.x,this.posAxe.y);
         rotate(this.rotAxe);
+        scale(this.scaleAxe.x,this.scaleAxe.y);
         stroke( this.colorGrid );
-        strokeWeight(1);
+        strokeWeight(1/this.scaleAxe.x);
 
         let step = this.dim.x / this.resGrid;
-        for (let x=-this.dim.x; x<=this.dim.x; x+=step)
-            line(x,-this.dim.y,x,this.dim.y);
+        let xMin = -this.dim.x-step;
+        let xMax = this.dim.x+step;
+        let yMin = -this.dim.y-step;
+        let yMax = this.dim.y+step;
+
+
+        for (let x=xMin; x<=xMax; x+=step)
+            line(x,yMin,x,yMax);
 
         step = this.dim.y / this.resGrid;
-        for (let y=-this.dim.y; y<=this.dim.y; y+=step)
-            line(-this.dim.x,y,this.dim.x,y);
+        for (let y=yMin; y<=yMax; y+=step)
+            line(xMin,y,xMax,y);
 
         pop();
 
@@ -111,12 +120,13 @@ class MyCanvas
             
                 noFill();
                 stroke(this.colorLinePos);
-                strokeWeight(1);
+                strokeWeight(1/this.scaleAxe.x);
         
                 // Mark X
                 push();
                 translate(this.posAxe.x+x,this.posAxe.y);
                 rotate(this.rotAxe);
+                scale(this.scaleAxe.x,1);
                 line(0,0,0,this.lenAxe/2);
                 pop();
         
@@ -124,6 +134,7 @@ class MyCanvas
                 push();
                 translate(this.posAxe.x,this.posAxe.y+y);
                 rotate(this.rotAxe);
+                scale(1,this.scaleAxe.y);
                 line(0,0,this.lenAxe/2,0);
                 pop();
 
@@ -131,6 +142,7 @@ class MyCanvas
                 push();
                 translate(this.posAxe.x,this.posAxe.y);
                 rotate(this.rotAxe);
+                scale(this.scaleAxe.x,this.scaleAxe.y);
                 line(x,y-this.lenAxe/4,x,y+this.lenAxe/4);
                 line(x-this.lenAxe/4,y,x+this.lenAxe/4,y);
                 pop();
@@ -140,11 +152,13 @@ class MyCanvas
 
         g.font.textSize(this.fontSize);
 
+        // TODO : check is scale is too small
+
         let sx = `${int(x)}`;
         let wX = g.font.textWidth(sx);
         g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("x", x)})`);
         push();
-        translate(this.posAxe.x+x-wX/2,this.posAxe.y-this.padding-5);
+        translate(this.scaleAxe.x*this.posAxe.x+x-wX/2,this.scaleAxe.y*this.posAxe.y-this.padding-5);
         rotate(this.rotAxe);
         g.font.text(sx,0,0);
         pop();
@@ -153,7 +167,7 @@ class MyCanvas
         let wY = g.font.textWidth(sy);
         g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("y",y)})`);
         push();
-        translate(this.posAxe.x-this.padding-wY-2,this.posAxe.y+y+4);
+        translate(this.scaleAxe.x*this.posAxe.x-this.padding-wY-2,this.scaleAxe.y*this.posAxe.y+y+4);
         rotate(this.rotAxe);
         g.font.text(sy,0,0);
         pop();
@@ -213,23 +227,29 @@ class MyCanvas
     
             push();
             stroke(0);
-            strokeWeight(1);
+            strokeWeight(1/this.scaleAxe.x);
             translate(0,-this.lenAxe/4);
+            push();
+            scale(this.scaleAxe.x,this.scaleAxe.y);
             line(0,0,l,0)
             line(l,0,l-this.sizeArrow,-this.sizeArrow);
             line(l,0,l-this.sizeArrow,this.sizeArrow);
-            g.font.text("x",l-wX/2,-this.padding);
+            pop();
+            g.font.text("x",this.scaleAxe.x*(l-wX/2),this.scaleAxe.y*(-this.padding));
             pop();
             
             push();
             stroke(0);
-            strokeWeight(1);
+            strokeWeight(1/this.scaleAxe.x);
             translate(-this.lenAxe/4,0);
+            push();
+            scale(this.scaleAxe.x,this.scaleAxe.y);
             line(0,0,0,l);
             line(0,l,-this.sizeArrow,l-this.sizeArrow);
             line(0,l,this.sizeArrow,l-this.sizeArrow);
+            pop();
     
-            g.font.text("y",-this.padding-wY,l-wY/2);
+            g.font.text("y",this.scaleAxe.x*(-this.padding-wY),this.scaleAxe.y*(l-wY/2));
             pop();
         }
         pop();

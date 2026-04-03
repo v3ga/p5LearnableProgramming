@@ -176,6 +176,8 @@ class p5Interpreter
     {
         try
         {
+            if (this.controller.runMode) noLoop();
+
             if (this.setupHasCreateCanvas) this.hideCanvas();
             else this.showCanvas();
 
@@ -193,10 +195,11 @@ class p5Interpreter
             this.showCanvas();
             if (g.callStack) { g.callStack.clear(); g.callStack.push("draw()", 0); }
 
-            for (let i = 0; i < 5; i++)
+            while(true)
             {
                 this.reset();
                 await this.fnDraw.execute(this.controller);
+                if (this.controller.runMode) redraw();
             }
             console.log("done!");
         }
@@ -257,7 +260,6 @@ class p5Interpreter
     draw()
     {
 
-        
         // Background
         push();
         g.myCanvas.beginDraw();
@@ -267,11 +269,12 @@ class p5Interpreter
         g.myCanvas.endDraw();
         pop();
 
-        // Sketches elements
+        // Sketches informations
         push();
         g.myCanvas.drawGrid();
         g.myCanvas.drawAxes();
-        g.myCanvas.drawPosition();
+        if (this.controller && !this.controller.runMode)
+            g.myCanvas.drawPosition();
         pop();
 
 

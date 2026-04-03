@@ -25,7 +25,7 @@ class p5CommandAssignment extends p5Command
 
     async execute(controller)
     {
-        this.highlight();
+        if (!controller.runMode) this.highlight();
         await controller.gate();  // step: see assignment highlighted
 
         // Resolve this.* references for evaluation

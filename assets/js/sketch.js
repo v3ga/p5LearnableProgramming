@@ -93,11 +93,17 @@ function setup()
             }
 
             g.controller   = new ExecutionController();
+            if (typeof options !== "undefined" && options.runMode)
+                g.controller.runMode = true;
             g.interpreter  = new p5Interpreter("p5Canvas-container", result.canvasSize.w, result.canvasSize.h);
             g.font         = new FontMonoLine("p5Canvas");
 
             positionContainer();
             initPlaybackButtons();
+
+            if (g.controller.runMode)
+                $(".playback-controls").hide();
+
             loop();
 
             g.interpreter.compile(result.setupCommands, result.drawCommands, g.controller, result.setupHasCreateCanvas, result.globalCommands);
@@ -132,6 +138,7 @@ function initPlaybackButtons()
     let btnPlay    = $("#btn-play");
     let btnPause   = $("#btn-pause");
     let btnStep    = $("#btn-step");
+    let btnRun     = $("#btn-run");
     let btnRestart = $("#btn-restart");
 
     function updateButtons()
@@ -155,6 +162,14 @@ function initPlaybackButtons()
     btnStep.on("click", function()
     {
         g.controller.step();
+        updateButtons();
+    });
+
+    btnRun.on("click", function()
+    {
+        g.controller.runMode = true;
+        g.controller.paused  = false;
+        if (g.controller._resolve) { g.controller._resolve(); g.controller._resolve = null; }
         updateButtons();
     });
 

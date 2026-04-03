@@ -56,7 +56,7 @@ class p5WhileLoop extends p5Command
 
     async execute(controller)
     {
-        this.highlight();
+        if (!controller.runMode) this.highlight();
         await controller.gate();  // step 1: see while highlighted
 
         let iteration = 0;
@@ -70,15 +70,18 @@ class p5WhileLoop extends p5Command
 
             // Eval condition
             let condOk = this._evalCondition();
-            await this._animateCondition(condOk, controller);
-            await controller.gate();  // step: see condition result
+            if (!controller.runMode)
+            {
+                await this._animateCondition(condOk, controller);
+                await controller.gate();  // step: see condition result
+            }
 
             if (!condOk) break;
 
             // Run body
-            this.unhighlight();
+            if (!controller.runMode) this.unhighlight();
             await this.commandList.executeCommands(controller);
-            this.highlight();
+            if (!controller.runMode) this.highlight();
 
             iteration++;
         }

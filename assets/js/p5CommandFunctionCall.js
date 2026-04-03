@@ -31,7 +31,7 @@ class p5CommandFunctionCall extends p5Command
 
     async execute(controller)
     {
-        this.highlight();
+        if (!controller.runMode) this.highlight();
         await controller.gate();  // step 1: see highlighted line
 
         // Resolve embedded steppable calls in parameters (random, user functions)

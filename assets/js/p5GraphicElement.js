@@ -28,6 +28,11 @@ class p5GraphicElement
 
     _playTimeline(t)
     {
+        if (g.controller && g.controller.runMode)
+        {
+            t.seek(t.duration);
+            return Promise.resolve();
+        }
         if (g.controller) g.controller.registerTimeline(t);
         t.play();
         return t.finished.then(() => {
@@ -209,11 +214,8 @@ class p5Line extends p5GraphicElement
 
     draw()
     {
-
-        g.myCanvas.beginDraw();
         if (dist(this.x1,this.y1,this.x2,this.y2)>=1)
             line(this.x1,this.y1,this.x2,this.y2);
-        g.myCanvas.endDraw();
     }
 
 }
@@ -256,7 +258,6 @@ class p5Circle extends p5GraphicElement
 
     draw()
     {
-        g.myCanvas.beginDraw();
         circle(this.x, this.y, this.d );
         push();
         stroke(200,0,0);
@@ -268,7 +269,6 @@ class p5Circle extends p5GraphicElement
             this.drawDiameterH(0,0,this.d);
         }
         pop();
-        g.myCanvas.endDraw();
     }
 }
 
@@ -754,8 +754,8 @@ class p5Translate extends p5GraphicElement
         t
         .add({
             targets : g.myCanvas.posAxe,
-            x : g.myCanvas.posAxe.x+this.x,
-            y : g.myCanvas.posAxe.y+this.y,
+            x : g.myCanvas.scaleAxe.x*(g.myCanvas.posAxe.x+this.x),
+            y : g.myCanvas.scaleAxe.y*(g.myCanvas.posAxe.y+this.y),
             duration : 750,
             begin : () => { this.command.highlightParameters( ["x","y"] ) },
             complete: () => { this.bAnimDone = true }
@@ -804,6 +804,43 @@ class p5Rotate extends p5GraphicElement
     }
 }
 
+class p5Scale extends p5GraphicElement
+{
+    constructor(command)
+    {
+        super(command);
+        this.sx = command.getParameterValue(`sx`);
+        this.sy = command.getParameterValue(`sy`);
+        if (this.sy==0) this.sy=this.sx;
+        this.bAnimDone = false;
+    }
+
+    beginAnimation()
+    {
+        let t = this.makeTimeline();
+        t
+        .add({
+            targets     : g.myCanvas.scaleAxe,
+            x           : g.myCanvas.scaleAxe.x * this.sx,
+            y           : g.myCanvas.scaleAxe.y * this.sy,
+            duration    : 750,
+            begin : () => { this.command.highlightParameters( ["angle"] ) },
+            complete: () => { this.bAnimDone = true }
+        })
+
+        return this._playTimeline(t);        
+    }
+
+    draw()
+    {
+        scale(
+            this.bAnimDone ? this.sx : g.myCanvas.scaleAxe.x,
+            this.bAnimDone ? this.sy : g.myCanvas.scaleAxe.y
+        );
+    }
+}
+
+
 
 
 class p5Push extends p5GraphicElement
@@ -848,5 +885,6 @@ p5Reg.register("vertex",       { params: ["x","y"],                             
 p5Reg.register("endShape",     { params: ["mode"],                               createGraphic: cmd => new p5EndShape(cmd) });
 p5Reg.register("translate",    { params: ["x","y"],                              createGraphic: cmd => new p5Translate(cmd) });
 p5Reg.register("rotate",       { params: ["angle"],                              createGraphic: cmd => new p5Rotate(cmd) });
+p5Reg.register("scale",        { params: ["sx","sy"],                            createGraphic: cmd => new p5Scale(cmd) });
 p5Reg.register("push",         { params: [],                                     createGraphic: cmd => new p5Push(cmd) });
 p5Reg.register("pop",          { params: [],                                     createGraphic: cmd => new p5Pop(cmd) });

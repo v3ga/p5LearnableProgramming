@@ -669,10 +669,8 @@ class p5Vertex extends p5GraphicElement
             let x2 = this.bAnimDone ? this.x : g.myCanvas.posLines.x;
             let y2 = this.bAnimDone ? this.y : g.myCanvas.posLines.y;
 
-            g.myCanvas.beginDraw();
             noFill();
             line(x1,y1,x2,y2);
-            g.myCanvas.endDraw();
         }
     }
 
@@ -718,11 +716,9 @@ class p5EndShape extends p5GraphicElement
         {
             let verticesGfx = g.myCanvas.shapeGfxCurrent.verticesGfx;
             verticesGfx.forEach( vGfx=>vGfx.bDraw=false )
-            g.myCanvas.beginDraw();
                 beginShape();
                 verticesGfx.forEach( vGfx=>vertex(vGfx.x,vGfx.y) );
                 endShape(this.closeMode ? CLOSE : null);
-            g.myCanvas.endDraw();
         }
         else 
         {
@@ -734,10 +730,8 @@ class p5EndShape extends p5GraphicElement
                 let x2 = g.myCanvas.posLines.x;
                 let y2 = g.myCanvas.posLines.y;
 
-                g.myCanvas.beginDraw();
                 noFill();
                 line(x1,y1,x2,y2);
-                g.myCanvas.endDraw();
             }
         }
     }

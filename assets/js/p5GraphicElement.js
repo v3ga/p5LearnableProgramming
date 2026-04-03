@@ -453,8 +453,6 @@ class p5Triangle extends p5GraphicElement
 
     draw()
     {
-
-        g.myCanvas.beginDraw();
         push();
         translate(this.x,this.y);
         if (this.contourDone == false)
@@ -472,7 +470,6 @@ class p5Triangle extends p5GraphicElement
             triangle(this.x[0],this.y[0],this.x[1],this.y[1],this.x[2],this.y[2]);
         }
         pop();
-        g.myCanvas.endDraw();
     }
 }
 
@@ -530,7 +527,6 @@ class p5Arc extends p5GraphicElement
 
     draw()
     {
-        g.myCanvas.beginDraw();
 
         push();
         translate(this.x,this.y);
@@ -595,7 +591,6 @@ class p5Arc extends p5GraphicElement
 
 
         pop();
-        g.myCanvas.endDraw();
     }
 }
 

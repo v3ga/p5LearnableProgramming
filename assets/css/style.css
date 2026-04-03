@@ -197,6 +197,13 @@ body
   display: none;
 }
 
+.btn-playback:disabled
+{
+  opacity:          0.3;
+  cursor:           default;
+  pointer-events:   none;
+}
+
 .column.canvas #p5Canvas-container
 {
   flex:             1;

@@ -12,10 +12,10 @@ var g =
 
 function setup() 
 {
+    console.log('setup()')
+    //noLoop();
     if (typeof sketchFile !== "undefined")
     {
-        noLoop();
-
         // Build list of files to fetch
         let fetches = [fetch(sketchFile).then(r => r.text())];
 
@@ -96,19 +96,24 @@ function setup()
             if (typeof options !== "undefined" && options.runMode)
                 g.controller.runMode = true;
             g.interpreter  = new p5Interpreter("p5Canvas-container", result.canvasSize.w, result.canvasSize.h);
+            g.interpreter._sourceCode = mainCode;
             g.font         = new FontMonoLine("p5Canvas");
 
             positionContainer();
             initPlaybackButtons();
 
             if (g.controller.runMode)
-                $(".playback-controls").hide();
+            {
+                $("#btn-run-mode").addClass("active");
+                $("#btn-play-pause, #btn-step").prop("disabled", true);
+            }
 
-            loop();
 
             g.interpreter.compile(result.setupCommands, result.drawCommands, g.controller, result.setupHasCreateCanvas, result.globalCommands);
         });
     }
+
+    loop();
 }
 
 function draw() 
@@ -135,42 +140,66 @@ function isOptions()
 
 function initPlaybackButtons()
 {
-    let btnPlay    = $("#btn-play");
-    let btnPause   = $("#btn-pause");
+    let btnPlayPause = $("#btn-play-pause");
     let btnStep    = $("#btn-step");
-    let btnRun     = $("#btn-run");
+    let btnRunMode = $("#btn-run-mode");
     let btnRestart = $("#btn-restart");
 
-    function updateButtons()
+    function updatePlayPauseIcon()
     {
-        btnPlay.toggleClass("active", !g.controller.paused);
-        btnPause.toggleClass("active", g.controller.paused);
+        let playing = !g.controller.paused;
+        btnPlayPause.find(".icon-play").toggle(!playing);
+        btnPlayPause.find(".icon-pause").toggle(playing);
+        btnPlayPause.attr("title", playing ? "Pause" : "Play");
     }
 
-    btnPlay.on("click", function()
+    btnPlayPause.on("click", function()
     {
-        g.controller.play();
-        updateButtons();
-    });
-
-    btnPause.on("click", function()
-    {
-        g.controller.pause();
-        updateButtons();
+        if (g.controller.paused)
+            g.controller.play();
+        else
+            g.controller.pause();
+        updatePlayPauseIcon();
     });
 
     btnStep.on("click", function()
     {
         g.controller.step();
-        updateButtons();
+        updatePlayPauseIcon();
     });
 
-    btnRun.on("click", function()
+    btnRunMode.on("click", function()
     {
-        g.controller.runMode = true;
-        g.controller.paused  = false;
-        if (g.controller._resolve) { g.controller._resolve(); g.controller._resolve = null; }
-        updateButtons();
+        let willBeRunMode = !g.controller.runMode;
+        g.controller.abort();
+        
+        setTimeout(function()
+        {
+            g.controller.reset();
+            g.controller.runMode = willBeRunMode;
+            console.log(`g.controller.runMode=${g.controller.runMode}`)
+            g.interpreter.stopRunMode();
+            g.interpreter.reset();
+            if (g.panelSlider) g.panelSlider.reset();
+            if (g.callStack) g.callStack.clear();
+            $(".command").removeClass("current");
+            $(".mark").hide();
+            $(".update_check").hide();
+            anime.running.length = 0;
+
+            btnRunMode.toggleClass("active", willBeRunMode);
+            btnPlayPause.prop("disabled", willBeRunMode);
+            btnStep.prop("disabled", willBeRunMode);
+
+            g.interpreter.compile(
+                g.interpreter.fnSetup,
+                g.interpreter.fnDraw,
+                g.controller,
+                g.interpreter.setupHasCreateCanvas,
+                g.interpreter.fnGlobal
+            );
+            updatePlayPauseIcon();
+        }, 100);
     });
 
     btnRestart.on("click", function()
@@ -191,9 +220,9 @@ function initPlaybackButtons()
                 g.controller,
                 g.interpreter.setupHasCreateCanvas
             );
-            updateButtons();
+            updatePlayPauseIcon();
         }, 100);
     });
 
-    updateButtons();
+    updatePlayPauseIcon();
 }

@@ -20,6 +20,9 @@ class p5Interpreter
         this.fnSetup      = null;
         this.fnDraw       = null;
         this.setupHasCreateCanvas = false;
+        this._drawRunning = false;
+        this._p5Instance = null;
+        this._sourceCode = null;
 
         g.interpreter = this;
         g.myCanvas    = this.myCanvas;
@@ -174,9 +177,18 @@ class p5Interpreter
 
     async run()
     {
+        console.log('p5Interpreter.run()')
         try
         {
-            if (this.controller.runMode) noLoop();
+            // Clear user variables from previous run
+            for (let name of this.variablesDef.keys())
+            {
+                window[name] = undefined;
+            }
+            this.variablesDef.clear();
+            this.variables.userTable.find('tr:not(.empty-slot)').remove();
+            this.variables.userVars.clear();
+            this.p5State = this._defaultP5State();
 
             if (this.setupHasCreateCanvas) this.hideCanvas();
             else this.showCanvas();
@@ -195,13 +207,16 @@ class p5Interpreter
             this.showCanvas();
             if (g.callStack) { g.callStack.clear(); g.callStack.push("draw()", 0); }
 
-            while(true)
+            if (this.controller.runMode)
+            {
+                this.startRunMode();
+            }
+
+            while(!this.controller.runMode)
             {
                 this.reset();
                 await this.fnDraw.execute(this.controller);
-                if (this.controller.runMode) redraw();
             }
-            console.log("done!");
         }
         catch (e)
         {
@@ -257,28 +272,90 @@ class p5Interpreter
         this.variables.addVariable(name, value);
     }
 
-    draw()
+    async draw()
     {
 
-        // Background
-        push();
-        g.myCanvas.beginDraw();
-        g.myCanvas.draw();
-        // Animated elements
-        this.graphics.forEach(gfx => gfx.draw());
-        g.myCanvas.endDraw();
-        pop();
+        // In runMode, just blit the instance canvas
+        if (this._p5Instance)
+        {
+            let src = this._p5Instance.canvas || (this._p5Instance._renderer && this._p5Instance._renderer.elt);
+            if (src)
+            {
+                background(255);
+                drawingContext.drawImage(src, this.myCanvas.pos.x, this.myCanvas.pos.y, 500,500);
+            }
+        }
+        else 
+        {
+            push();
+            g.myCanvas.beginDraw();
+            g.myCanvas.draw();
+            this.graphics.forEach(gfx => gfx.draw()); // animated elements
+            g.myCanvas.endDraw();
+            pop();
 
-        // Sketches informations
-        push();
-        g.myCanvas.drawGrid();
-        g.myCanvas.drawAxes();
-        if (this.controller && !this.controller.runMode)
-            g.myCanvas.drawPosition();
-        pop();
+        }
+
+
+        {
+            push();
+            g.myCanvas.drawGrid();
+            g.myCanvas.drawAxes();
+            if (this.controller && !this.controller.runMode)
+                g.myCanvas.drawPosition();
+            pop();
+
+        }
 
 
         // Update values
         this.refreshReservedVariables();
+    }
+
+    startRunMode()
+    {
+        this.stopRunMode();
+        let code = this._sourceCode;
+        let drawW = this.myCanvas.dim.x;
+        let drawH = this.myCanvas.dim.y;
+        let self = this;
+
+        this._p5Instance = new p5(function(p)
+        {
+            // Evaluate the user code in the instance context
+            // Extract setup and draw via Function constructor
+            let fn = new Function("p",
+                "with(p){" + code + ";"
+                + "if(typeof setup==='function') p._setupFn=setup;"
+                + "if(typeof draw==='function') p._drawFn=draw;"
+                + "}"
+            );
+            fn(p);
+
+            p.setup = function()
+            {
+                p.createCanvas(drawW, drawH);
+                if (p._setupFn) p._setupFn.call(p);
+            };
+
+            if (p._drawFn)
+            {
+                p.draw = function() { p._drawFn.call(p); };
+            }
+        });
+
+        // Hide the instance's own canvas — we blit it onto the main canvas
+        if (this._p5Instance.canvas)
+            this._p5Instance.canvas.style.display = "none";
+    }
+
+    stopRunMode()
+    {
+        if (this._p5Instance)
+        {
+            this._p5Instance.remove();
+            this._p5Instance = null;
+            console.log(`removing p5 instance`)
+        }
     }
 }

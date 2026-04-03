@@ -13,6 +13,8 @@ class p5GraphicElement
         this.diameterOpacity = 0;
     }
 
+    
+
     makeTimeline()
     {
         let t = anime.timeline({easing : "easeOutQuad", duration : 500, autoplay: false });
@@ -45,9 +47,9 @@ class p5GraphicElement
     {
         push();
         stroke(200,0,0,this.diameterOpacity);
-        let a = g.myCanvas.sizeArrow;
+        let a = this._s(g.myCanvas.sizeArrow);
         let v = int(d);
-        let pad = 1;
+        let pad = this._s(1);
         let x1 = -d/2+pad, x2 = d/2 - pad;
 
         line(x1,0,x2,0);
@@ -57,12 +59,19 @@ class p5GraphicElement
         line(x1,0,x1+a,a);
         
 
-        g.font.textSize(g.myCanvas.fontSize);
+        g.font.textSize(this._s(g.myCanvas.fontSize));
         let vW = g.font.textWidth(""+v);
         g.font.fill(`rgba(200,0.0,0.0,${this.diameterOpacity/255.0})`);
-        g.font.text(""+v,-vW/2,-g.myCanvas.padding);
+        g.font.text(""+v,-vW/2,this._s(-g.myCanvas.padding));
 
         pop();
+    }
+    
+    _s(v)
+    {
+        if (g.myCanvas.scaleAxe.x!=0)
+            return v/g.myCanvas.scaleAxe.x;
+        return v;
     }
 }
 
@@ -261,7 +270,7 @@ class p5Circle extends p5GraphicElement
         circle(this.x, this.y, this.d );
         push();
         stroke(200,0,0);
-        strokeWeight(1);
+        strokeWeight(1/g.myCanvas.scaleAxe.x);
         fill(200,0,0);
         translate(this.x,this.y);
         if (this.bDrawDiameter && this.d>=5)
@@ -324,7 +333,7 @@ class p5Rect extends p5GraphicElement
             let a = g.myCanvas.sizeArrow;
             let pad  = a*2;
             stroke(200,0,0);
-            strokeWeight(1);
+            strokeWeight(1/g.myCanvas.scaleAxe.x);
             fill(200,0,0);
     
             let xOffset = 0, yOffset=0;
@@ -344,11 +353,11 @@ class p5Rect extends p5GraphicElement
             line(0,0,a,-a);
             line(0,0,a,a);
 
-            g.font.textSize(g.myCanvas.fontSize);
+            g.font.textSize(this._s(g.myCanvas.fontSize));
             let iw = int(this.w);
             let sw = `${iw}`;
             let w = g.font.textWidth(sw);
-            g.font.text(sw,(this.w-w)/2,-g.myCanvas.padding);
+            g.font.text(sw,(this.w-w)/2,this._s(-g.myCanvas.padding));
 
             pop();
 
@@ -362,10 +371,11 @@ class p5Rect extends p5GraphicElement
             line(0,0,-a,a);
             line(0,0,a,a);
 
-            g.font.textSize(g.myCanvas.fontSize);
+            g.font.textSize(this._s(g.myCanvas.fontSize));
             let ih= int(this.h);
-            w = g.font.textWidth(""+ih);
-            g.font.text(""+ih,-w-g.myCanvas.padding, this.h/2+g.myCanvas.fontSize/2);
+            let sh = `${ih}`;
+            w = g.font.textWidth(sh);
+            g.font.text(sh,-w-this._s(g.myCanvas.padding), this.h/2+this._s(g.myCanvas.fontSize)/2);
 
             
             pop();
@@ -530,7 +540,7 @@ class p5Arc extends p5GraphicElement
             push();
             noFill();
             stroke(0,30);
-            strokeWeight(1);
+            strokeWeight(1/g.myCanvas.scaleAxe.x);
             ellipse(0,0,this.w,this.h);
             pop();            
         }
@@ -548,7 +558,7 @@ class p5Arc extends p5GraphicElement
 
                 push();
                 stroke(200,0,0);
-                strokeWeight(1);
+                strokeWeight(1/g.myCanvas.scaleAxe.x);
                 noFill();
                 line(0,0,0.5*this.w*cos(this.astart),0.5*this.h*sin(this.astart))
                 line(0,0,0.5*this.w*cos(this.aend),0.5*this.h*sin(this.aend))
@@ -561,7 +571,7 @@ class p5Arc extends p5GraphicElement
             {
                 push();
                 stroke(200,0,0);
-                strokeWeight(1);
+                strokeWeight(1/g.myCanvas.scaleAxe.x);
                 fill(255,0,0,255);
                 rotate(this.aend);
                 

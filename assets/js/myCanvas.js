@@ -124,18 +124,18 @@ class MyCanvas
         
                 // Mark X
                 push();
-                translate(this.posAxe.x+x,this.posAxe.y);
+                translate(this.posAxe.x,this.posAxe.y);
                 rotate(this.rotAxe);
-                scale(this.scaleAxe.x,1);
-                line(0,0,0,this.lenAxe/2);
+                scale(this.scaleAxe.x,this.scaleAxe.y);
+                line(x,0,x,this.lenAxe/2);
                 pop();
         
                 // Mark Y
                 push();
-                translate(this.posAxe.x,this.posAxe.y+y);
+                translate(this.posAxe.x,this.posAxe.y);
                 rotate(this.rotAxe);
-                scale(1,this.scaleAxe.y);
-                line(0,0,this.lenAxe/2,0);
+                scale(this.scaleAxe.x,this.scaleAxe.y);
+                line(0,y,this.lenAxe/2,y);
                 pop();
 
                 // Cross
@@ -151,24 +151,30 @@ class MyCanvas
         }
 
         g.font.textSize(this.fontSize);
-
-        // TODO : check is scale is too small
-
         let sx = `${int(x)}`;
         let wX = g.font.textWidth(sx);
-        g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("x", x)})`);
+        let sy = `${int(y)}`;
+        let wY = g.font.textWidth(sy);
+
+        g.font.textSize(this.fontSize/this.scaleAxe.x);
+        // TODO : check is scale is too small
         push();
-        translate(this.scaleAxe.x*this.posAxe.x+x-wX/2,this.scaleAxe.y*this.posAxe.y-this.padding-5);
+        translate(this.posAxe.x,this.posAxe.y); 
         rotate(this.rotAxe);
+        translate(-wX/2,-this.padding-4);
+        scale(this.scaleAxe.x,this.scaleAxe.y);
+        translate(x,0);
+        g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("x", x)})`);
         g.font.text(sx,0,0);
         pop();
 
-        let sy = `${int(y)}`;
-        let wY = g.font.textWidth(sy);
-        g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("y",y)})`);
         push();
-        translate(this.scaleAxe.x*this.posAxe.x-this.padding-wY-2,this.scaleAxe.y*this.posAxe.y+y+4);
+        translate(this.posAxe.x,this.posAxe.y);
         rotate(this.rotAxe);
+        translate(-this.padding-wY,4);
+        scale(this.scaleAxe.x,this.scaleAxe.y);
+        translate(0,y);
+        g.font.fill(`rgba(0,0,0,${this.getFontAlphaFor("y",y)})`);
         g.font.text(sy,0,0);
         pop();
 

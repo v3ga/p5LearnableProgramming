@@ -6,6 +6,7 @@ function draw(){
 	background(220);
 	let rnd = random();
 	if (rnd < 0.5) {
+		rectMode(CENTER);
 		rect(250,250,200,200);
 	} else 
 	{

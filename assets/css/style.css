@@ -12,6 +12,8 @@
 
 .cm-p5-keyword    {color: #f5dc23;}
 .cm-p5-function   {color: #0ff;}
+a.cm-p5-function  {text-decoration: none; color: #0ff;}
+a.cm-p5-function:hover {text-decoration: underline;}
 .cm-number        {color:#ffa9d9};
 
 

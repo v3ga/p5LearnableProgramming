@@ -17,7 +17,11 @@ class p5CommandFunctionCall extends p5Command
     render(container)
     {
         this.elmt = $('<p class="command"></p>');
-        this.elmt.append(`<span class="cm-p5-function">${this._escapeHtml(this.name)}</span>(`);
+        let nameHtml = this._escapeHtml(this.name);
+        let fnSpan = p5Reg.get(this.name)
+            ? `<a class="cm-p5-function" href="https://p5js.org/reference/p5/${this.name}/" target="_blank">${nameHtml}</a>`
+            : `<span class="cm-p5-function">${nameHtml}</span>`;
+        this.elmt.append(`${fnSpan}(`);
 
         this.parameters.forEach((param, i) =>
         {

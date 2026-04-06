@@ -16,6 +16,7 @@ class p5Interpreter
         this.graphics     = [];
         this.variables    = new Variables($(".container-variables"));
         this.p5State      = this._defaultP5State();
+        this._p5StateStack = [];
         this.controller   = null;
         this.fnSetup      = null;
         this.fnDraw       = null;
@@ -23,6 +24,7 @@ class p5Interpreter
         this._drawRunning = false;
         this._p5Instance = null;
         this._sourceCode = null;
+        this._frameCount = 1;
 
         g.interpreter = this;
         g.myCanvas    = this.myCanvas;
@@ -41,6 +43,19 @@ class p5Interpreter
             useStroke    : true,
             useFill      : true
         };
+    }
+
+    pushP5State()
+    {
+        this._p5StateStack.push(Object.assign({}, this.p5State));
+    }
+
+    popP5State()
+    {
+        if (this._p5StateStack.length === 0) return;
+        this.p5State = this._p5StateStack.pop();
+        this.applyP5State();
+        this.refreshReservedVariables();
     }
 
     _isStateCall(name)
@@ -117,6 +132,20 @@ class p5Interpreter
 //            strokeWeight(this.p5State.strokeWeight);
     }
 
+    _syncP5State(p)
+    {
+        let ctx = p.drawingContext;
+
+        this.p5State.strokeWeight = ctx.lineWidth;
+        this.p5State.stroke       = ctx.strokeStyle || 0;
+        this.p5State.fill         = ctx.fillStyle || 255;
+        this.p5State.useStroke    = ctx.strokeStyle !== "rgba(0,0,0,0)" && ctx.strokeStyle !== "transparent";
+        this.p5State.useFill      = ctx.fillStyle !== "rgba(0,0,0,0)" && ctx.fillStyle !== "transparent";
+        this.p5State.angleMode    = (p._angleMode === p.DEGREES) ? "DEGREES" : "RADIANS";
+        this.p5State.rectMode     = (p._rectMode === p.CENTER) ? "CENTER" : "CORNER";
+        this._frameCount          = p.frameCount;
+    }
+
     _ensureCanvasParent()
     {
         let parent = document.getElementById(this.canvasId);
@@ -155,14 +184,26 @@ class p5Interpreter
 
     refreshReservedVariables()
     {
+        let runMode = this.controller && this.controller.runMode;
+
         this.variables.updateP5Value("width", typeof width !== "undefined" ? width : "-");
         this.variables.updateP5Value("height", typeof height !== "undefined" ? height : "-");
-        this.variables.updateP5Value("angleMode", this.p5State.angleMode || "RADIANS");
-        this.variables.updateP5Value("rectMode", this.p5State.rectMode || "CORNER");
+        this.variables.updateP5Value("frameCount", this._frameCount);
 
-        this.variables.updateP5Value("strokeWeight", this.p5State.strokeWeight);
-        this.variables.updateP5Value("stroke", this.p5State.useStroke ? (this.p5State.stroke || 0) : "off");
-        this.variables.updateP5Value("fill", this.p5State.useFill ? (this.p5State.fill || 0) : "off");
+        let extraVars = ["stroke", "strokeWeight", "fill", "angleMode", "rectMode"];
+        if (!runMode)
+        {
+            this.variables.updateP5Value("stroke", this.p5State.useStroke ? (this.p5State.stroke || 0) : "off");
+            this.variables.updateP5Value("strokeWeight", this.p5State.strokeWeight);
+            this.variables.updateP5Value("fill", this.p5State.useFill ? (this.p5State.fill || 0) : "off");
+            this.variables.updateP5Value("angleMode", this.p5State.angleMode || "RADIANS");
+            this.variables.updateP5Value("rectMode", this.p5State.rectMode || "CORNER");
+        }
+        extraVars.forEach(name => {
+            let id = this.variables._safeId(name);
+            let tr = this.variables.elmt.find(`#p5-${id}`);
+            tr.toggle(!runMode);
+        });
     }
 
     async compile(setupCommands, drawCommands, controller, setupHasCreateCanvas = false, globalCommands = [])
@@ -189,6 +230,8 @@ class p5Interpreter
             this.variables.userTable.find('tr:not(.empty-slot)').remove();
             this.variables.userVars.clear();
             this.p5State = this._defaultP5State();
+            this._p5StateStack = [];
+            this._frameCount = 1;
 
             if (this.setupHasCreateCanvas) this.hideCanvas();
             else this.showCanvas();
@@ -215,7 +258,17 @@ class p5Interpreter
             while(!this.controller.runMode)
             {
                 this.reset();
+                window.frameCount = this._frameCount;
                 await this.fnDraw.execute(this.controller);
+                this._frameCount++;
+
+                // Pause between draw iterations
+                await this.controller.gate();
+                let t = anime({ duration: 2000, autoplay: false });
+                this.controller.registerTimeline(t);
+                t.play();
+                await t.finished;
+                this.controller.unregisterTimeline();
             }
         }
         catch (e)
@@ -274,11 +327,18 @@ class p5Interpreter
 
     async draw()
     {
+        // Keep window.frameCount in sync with our own counter
+        // (p5's main loop overwrites it every frame, so we re-force it here)
+        if (!this.controller || !this.controller.runMode)
+            window.frameCount = this._frameCount;
 
         // In runMode, just blit the instance canvas
         if (this._p5Instance)
         {
-            let src = this._p5Instance.canvas || (this._p5Instance._renderer && this._p5Instance._renderer.elt);
+            let p = this._p5Instance;
+            this._syncP5State(p);
+
+            let src = p.canvas || (p._renderer && p._renderer.elt);
             if (src)
             {
                 background(255);
@@ -287,26 +347,21 @@ class p5Interpreter
         }
         else 
         {
-            push();
             g.myCanvas.beginDraw();
             g.myCanvas.draw();
+            p5GraphicElement.begin();
             this.graphics.forEach(gfx => gfx.draw()); // animated elements
+            p5GraphicElement.end();
             g.myCanvas.endDraw();
-            pop();
-
         }
 
 
-        {
-            push();
-            g.myCanvas.drawGrid();
-            g.myCanvas.drawAxes();
-            if (this.controller && !this.controller.runMode)
-                g.myCanvas.drawPosition();
-            pop();
-
-        }
-
+        g.myCanvas.beginDraw();
+        g.myCanvas.drawGrid();
+        g.myCanvas.drawAxes();
+        if (this.controller && !this.controller.runMode)
+            g.myCanvas.drawPosition();
+        g.myCanvas.endDraw();
 
         // Update values
         this.refreshReservedVariables();

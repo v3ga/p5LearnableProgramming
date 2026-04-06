@@ -41,6 +41,13 @@ class Variables
         this.setActiveTab("p5");
     }
 
+    setRunMode(enabled)
+    {
+        let userTab = this.tabs.find('.variables-tab[data-tab="user"]');
+        userTab.prop("disabled", enabled);
+        if (enabled) this.setActiveTab("p5");
+    }
+
     _safeId(name)
     {
         return String(name).replace(/[^a-zA-Z0-9_-]/g, '_');

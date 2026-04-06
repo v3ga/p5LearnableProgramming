@@ -1,7 +1,6 @@
 ---
 title: Ball Bounce
 sketch: ball_bounce/main.js
-order: 12
 options:
   showVariables: true
 scripts:

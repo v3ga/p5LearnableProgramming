@@ -249,10 +249,16 @@ body
   border-color:      #0ff;
 }
 
+.variables-tab:disabled
+{
+  opacity:           0.3;
+  cursor:            default;
+  pointer-events:    none;
+}
+
 .variables-table
 {
-  min-height:        168px;
-  max-height:        168px;
+  height:            155px;
   overflow-y:        auto;
 }
 
@@ -279,6 +285,11 @@ body
 {
   border-right:       1px solid var(--color-grey);
   padding:            2px;
+}
+
+.container-variables table td:first-child
+{
+  width:              35%;
 }
 
 .container-variables > .title
@@ -440,6 +451,7 @@ body
 {
   position : absolute;
   opacity:    0;
+  display:none;
   padding: 2px;
   color: black;
   background-color: rgba(255, 255, 255, 0.975);

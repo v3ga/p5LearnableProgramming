@@ -138,7 +138,7 @@ class p5LoopFor extends p5Command
     {
         let mark     = ok ? this.mark_ok : this.mark_no;
         let duration = controller.scaleDuration(this.durationUpdateCondition);
-
+mark.hide();
         anime({
             targets    : mark.get(),
             scale      : [1, 1.05],

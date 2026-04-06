@@ -1,25 +1,35 @@
 class p5GraphicElement
 {
+    static nbPushCalled = 0;
+
+    static begin()
+    {
+        p5GraphicElement.nbPushCalled=0;
+    }
+
+    static end()
+    {
+        // Because sometimes : push() is being executed while commands are drawn
+        // Mess up with axes drawing
+        for (let i=0;i<p5GraphicElement.nbPushCalled;i++)
+            pop();
+    }
+
     constructor(command)
     {
         this.command     = command;
-        this.posOptions  = 
-        {
-            axes : { display : true, sync : true }
-        };
         this.timeline = null;
         this.pause = 0;
         this.durationWait = 1000;
         this.diameterOpacity = 0;
     }
 
-    
-
     makeTimeline()
     {
         let t = anime.timeline({easing : "easeOutQuad", duration : 500, autoplay: false });
         return t;
     }
+
 
     beginAnimation()
     {
@@ -43,7 +53,16 @@ class p5GraphicElement
     }
 
     draw(){}
-    drawDiameterH(x,y,d)
+ 
+   drawDiameterH(d, options={'offsetText':0})
+   {
+        push();
+        rotate(-PI/2);
+        this.drawDiameterW(d, options);
+        pop();
+   }
+
+    drawDiameterW(d, options={'offsetText':0})
     {
         push();
         stroke(200,0,0,this.diameterOpacity);
@@ -58,11 +77,13 @@ class p5GraphicElement
         line(x1,0,x1+a,-a);
         line(x1,0,x1+a,a);
         
-
         g.font.textSize(this._s(g.myCanvas.fontSize));
-        let vW = g.font.textWidth(""+v);
+        let vW = g.font.textWidth(`${v}`);
+
+        let xText = options.offsetText !=0 ? options.offsetText : -vW/2;
+
         g.font.fill(`rgba(200,0.0,0.0,${this.diameterOpacity/255.0})`);
-        g.font.text(""+v,-vW/2,this._s(-g.myCanvas.padding));
+        g.font.text(`${v}`,xText,this._s(-g.myCanvas.padding));
 
         pop();
     }
@@ -99,14 +120,11 @@ class p5Background extends p5GraphicElement
 
     draw()
     {
-        //g.myCanvas.beginDraw();
         push();
         noStroke();
         fill( this.command.getParameterValue("grey") );
         rect(0,0,g.myCanvas.dim.x,g.myCanvas.dim.y);
         pop();
-        //g.myCanvas.endDraw();
-
     }
 }
 
@@ -226,8 +244,67 @@ class p5Line extends p5GraphicElement
         if (dist(this.x1,this.y1,this.x2,this.y2)>=1)
             line(this.x1,this.y1,this.x2,this.y2);
     }
+}
+
+class p5Ellipse extends p5GraphicElement
+{
+   constructor(command)
+    {
+        super(command);
+        this.bDrawDiameter = true;
+
+        this.x = command.getParameterValue("x");
+        this.y = command.getParameterValue("y");
+        this.w = 0;
+        this.h = 0;
+        this.wTarget = command.getParameterValue("w");
+        this.hTarget = command.getParameterValue("h");
+        if (this.hTarget === 0)
+            this.hTarget = this.wTarget;
+        console.log(this.wTarget, this.hTarget)
+    }
+
+    beginAnimation()
+    {
+        let t = this.makeTimeline();
+            t
+            .add({
+                targets : g.myCanvas.posLines,
+                x : this.x,
+                y : this.y,
+                begin : () => { this.command.highlightParameters( ["x","y"] ) }
+            })
+            .add({
+                targets : this,
+                w : this.wTarget,
+                h : this.hTarget,
+                duration : 500,
+                begin : () => { this.diameterOpacity = 255; this.command.highlightParameters( ["w","h"] ) },
+            })
+            .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { anime( {targets:this, duration : 100, easing : 'linear', diameterOpacity:0} ) }
+        })
+
+        return this._playTimeline(t);
+    }
+
+    draw()
+    {
+        ellipse(this.x, this.y, this.w, this.h );
+        push();
+        stroke(200,0,0);
+        strokeWeight(1/g.myCanvas.scaleAxe.x);
+        fill(200,0,0);
+        translate(this.x,this.y);
+        if (this.bDrawDiameter && (this.w>=5 || this.h>=5))
+        {
+            if (this.w>=5) this.drawDiameterW(this.w, {'offsetText' : g.myCanvas.padding});
+            if (this.h>=5) this.drawDiameterH(this.h, {'offsetText' : g.myCanvas.padding});
+        }
+        pop();
+    }
 
 }
+
 
 class p5Circle extends p5GraphicElement
 {
@@ -275,7 +352,7 @@ class p5Circle extends p5GraphicElement
         translate(this.x,this.y);
         if (this.bDrawDiameter && this.d>=5)
         {
-            this.drawDiameterH(0,0,this.d);
+            this.drawDiameterW(this.d);
         }
         pop();
     }
@@ -322,8 +399,6 @@ class p5Rect extends p5GraphicElement
 
     draw()
     {
-        //g.myCanvas.beginDraw();
-
         push();
         translate(this.x,this.y);
 
@@ -382,7 +457,6 @@ class p5Rect extends p5GraphicElement
 
         }
         pop();
-        //g.myCanvas.endDraw();
     }
 }
 
@@ -585,7 +659,7 @@ class p5Arc extends p5GraphicElement
 
         if (this.bDrawDiameter && this.w >= .5)
         {
-            this.drawDiameterH(0,0,this.w);
+            this.drawDiameterW(0,0,this.w);
         }            
             
 
@@ -639,6 +713,8 @@ class p5Vertex extends p5GraphicElement
 
     beginAnimation()
     {
+        if (! g.myCanvas.shapeGfxCurrent) return null;
+
         g.myCanvas.shapeGfxCurrent.newVertex(this);
 
         let t = this.makeTimeline();
@@ -689,6 +765,8 @@ class p5EndShape extends p5GraphicElement
 
     beginAnimation()
     {
+        if (! g.myCanvas.shapeGfxCurrent) return null;
+
         // Close mode -> animate to first vertex
         if (this.closeMode)
         {
@@ -778,7 +856,7 @@ class p5Rotate extends p5GraphicElement
     constructor(command)
     {
         super(command);
-        this.angle = command.getParameterValue(`angle`);
+        this.angle = this.command.getParameterValue(`angle`);
         this.bAnimDone = false;
     }
 
@@ -848,7 +926,16 @@ class p5Push extends p5GraphicElement
     {
         super(command);
     }
-    draw(){push()}
+    beginAnimation()
+    {
+        g.myCanvas.pushState();
+        g.interpreter.pushP5State();
+    }
+    draw()
+    {
+        push(); 
+        p5GraphicElement.nbPushCalled++;
+    }
 }
 
 class p5Pop extends p5GraphicElement
@@ -856,8 +943,46 @@ class p5Pop extends p5GraphicElement
     constructor(command)
     {
         super(command);
+        this.bAnimDone = false;
     }
-    draw(){pop()}
+
+    beginAnimation()
+    {
+        let saved = g.myCanvas.popState();
+        g.interpreter.popP5State();
+        if (!saved) return;
+
+        this.savedPosAxe   = saved.posAxe;
+        this.savedRotAxe   = saved.rotAxe;
+        this.savedScaleAxe = saved.scaleAxe;
+
+        let t = this.makeTimeline();
+        t.add({
+            targets  : g.myCanvas.posAxe,
+            x        : saved.posAxe.x,
+            y        : saved.posAxe.y,
+            duration : 750
+        }, 0);
+        t.add({
+            targets  : g.myCanvas,
+            rotAxe   : saved.rotAxe,
+            duration : 750
+        }, 0);
+        t.add({
+            targets  : g.myCanvas.scaleAxe,
+            x        : saved.scaleAxe.x,
+            y        : saved.scaleAxe.y,
+            duration : 750,
+            complete : () => { this.bAnimDone = true; }
+        }, 0);
+
+        return this._playTimeline(t);
+    }
+    draw()
+    {
+        pop();
+        p5GraphicElement.nbPushCalled--;
+    }
 }
 
 
@@ -873,10 +998,11 @@ p5Reg.register("strokeWeight", { params: ["v"],                                 
 p5Reg.register("fill",         { params: ["v1","v2","v3","v4"],                  createGraphic: cmd => new p5Fill(cmd) });
 p5Reg.register("noFill",       { params: [],                                     createGraphic: cmd => new p5NoFill(cmd) });
 p5Reg.register("line",         { params: ["x1","y1","x2","y2"],                  createGraphic: cmd => new p5Line(cmd) });
+p5Reg.register("ellipse",      { params: ["x","y","w","h"],                      createGraphic: cmd => new p5Ellipse(cmd) });
 p5Reg.register("circle",       { params: ["x","y","d"],                          createGraphic: cmd => new p5Circle(cmd) });
 p5Reg.register("rect",         { params: ["x","y","w","h"],                      createGraphic: cmd => new p5Rect(cmd) });
 p5Reg.register("rectMode",     { params: ["mode"],                               createGraphic: cmd => new p5RectMode(cmd) });
-p5Reg.register("square",       { params: ["x","y","w"],                         createGraphic: cmd => new p5Square(cmd) });
+p5Reg.register("square",       { params: ["x","y","w"],                          createGraphic: cmd => new p5Square(cmd) });
 p5Reg.register("triangle",     { params: ["x1","y1","x2","y2","x3","y3"],        createGraphic: cmd => new p5Triangle(cmd) });
 p5Reg.register("arc",          { params: ["x","y","w","h","astart","aend"],      createGraphic: cmd => new p5Arc(cmd) });
 p5Reg.register("beginShape",   { params: [],                                     createGraphic: cmd => new p5BeginShape(cmd) });

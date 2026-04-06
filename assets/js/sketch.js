@@ -106,6 +106,7 @@ function setup()
             {
                 $("#btn-run-mode").addClass("active");
                 $("#btn-play-pause, #btn-step").prop("disabled", true);
+                g.interpreter.variables.setRunMode(true);
             }
 
 
@@ -190,6 +191,7 @@ function initPlaybackButtons()
             btnRunMode.toggleClass("active", willBeRunMode);
             btnPlayPause.prop("disabled", willBeRunMode);
             btnStep.prop("disabled", willBeRunMode);
+            g.interpreter.variables.setRunMode(willBeRunMode);
 
             g.interpreter.compile(
                 g.interpreter.fnSetup,

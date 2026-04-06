@@ -26,6 +26,7 @@ class MyCanvas
         this.posAxe         = createVector();
         this.rotAxe         = 0; // degrees
         this.scaleAxe       = createVector(1.,1.);
+        this._stateStack    = [];
 
         // Drawing options
         this.options        = 
@@ -48,6 +49,22 @@ class MyCanvas
         this.posLines.set(0,0);
         this.rotAxe=0;
         this.scaleAxe.set(1.,1.);
+        this._stateStack = [];
+    }
+
+    pushState()
+    {
+        this._stateStack.push({
+            posAxe   : this.posAxe.copy(),
+            rotAxe   : this.rotAxe,
+            scaleAxe : this.scaleAxe.copy()
+        });
+    }
+
+    popState()
+    {
+        if (this._stateStack.length === 0) return null;
+        return this._stateStack.pop();
     }
 
     addShapeGfx(shapeGfx)
@@ -78,9 +95,10 @@ class MyCanvas
 
     drawGrid()
     {
-        this.beginDraw();
+        //this.beginDraw();
 
         push();
+
         translate(this.posAxe.x,this.posAxe.y);
         rotate(this.rotAxe);
         scale(this.scaleAxe.x,this.scaleAxe.y);
@@ -103,7 +121,7 @@ class MyCanvas
 
         pop();
 
-        this.endDraw();
+        //this.endDraw();
     }    
 
     drawPosition()
@@ -112,7 +130,7 @@ class MyCanvas
         let x = this.posLines.x;
         let y = this.posLines.y;
 
-        this.beginDraw();
+        //this.beginDraw();
 
         if (o.drawCrossPosition)
         {
@@ -178,7 +196,18 @@ class MyCanvas
         g.font.text(sy,0,0);
         pop();
 
-        this.endDraw();
+        //this.endDraw();
+
+        /*
+        push();
+        textSize(14);
+        fill(0);
+        noStroke();
+        translate(width/2,height/2);
+        rotate(0);
+        text(`${nf(this.posAxe.x,0,1)},${nf(this.posAxe.y,0,1)}`,0,0);
+        pop();
+        */
     }
 
     getFontAlphaFor(axe, pos)
@@ -205,7 +234,7 @@ class MyCanvas
         let l = this.lenAxe;
         let o = this.options;
 
-        this.beginDraw();
+        //this.beginDraw();
         g.font.textSize(this.fontSize);
         g.font.fill("rgba(0,0,0,1.0)");
 
@@ -260,7 +289,7 @@ class MyCanvas
         }
         pop();
 
-        this.endDraw();
+        //this.endDraw();
     }
 
     beginDraw()

@@ -371,10 +371,12 @@ class p5Rect extends p5GraphicElement
         this.h = 0;
         this.wTarget = command.getParameterValue("w");
         this.hTarget = command.getParameterValue("h");
+        this.infosOpacity = 0;
     }
     
     beginAnimation()
     {
+        this.infosOpacity = 1;
         let t = this.makeTimeline();
         t
         .add({
@@ -391,8 +393,10 @@ class p5Rect extends p5GraphicElement
             begin : () => { this.command.highlightParameters( ["w", "h"] ) },
         }
         )
-        .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { this.bDrawDimensions = false}
-        })
+        /*.add({targets : this, pause : 0, duration : this.durationWait, complete: () => { this.bDrawDimensions = false}
+        })*/
+        .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { anime( {targets:this, duration : 75, easing : 'linear', infosOpacity:0} ) } })
+
 
         return this._playTimeline(t);
     }
@@ -407,9 +411,9 @@ class p5Rect extends p5GraphicElement
         {
             let a = g.myCanvas.sizeArrow;
             let pad  = a*2;
-            stroke(200,0,0);
+            stroke(200,0,0,255*this.infosOpacity);
             strokeWeight(1/g.myCanvas.scaleAxe.x);
-            fill(200,0,0);
+            fill(200,0,0,255*this.infosOpacity);
     
             let xOffset = 0, yOffset=0;
             if (g.interpreter.p5State.rectMode == "CENTER")

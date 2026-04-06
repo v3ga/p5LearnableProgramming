@@ -241,6 +241,8 @@ class MyCanvas
         push();
         translate( this.posAxe.x, this.posAxe.y);
         rotate(this.rotAxe);
+        strokeCap(ROUND);
+        strokeJoin(ROUND);
 
         if (o.drawOrigin)
         {

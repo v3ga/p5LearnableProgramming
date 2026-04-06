@@ -9,9 +9,9 @@ function draw(){
     rectMode(CENTER);
     noFill();
     strokeWeight(4);
-    for (let i=0;i<10;i++)
+    for (let i=0;i<7;i++)
     {
-        square(0,0,300-i*32);
-        rotate(9);
+        square(0,0,400-i*56);
+        rotate(10);
     }
 }

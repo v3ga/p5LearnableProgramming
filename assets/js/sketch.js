@@ -228,3 +228,18 @@ function initPlaybackButtons()
 
     updatePlayPauseIcon();
 }
+
+// ----------------------------------------------------
+function distV(A,B)
+{
+    return dist(A.x,A.y,B.x,B.y);
+}
+
+// ----------------------------------------------------
+function mapV(A,B,t)
+{
+    return createVector(
+        map(t,0,1,A.x,B.x),
+        map(t,0,1,A.y,B.y,t)
+    );
+}

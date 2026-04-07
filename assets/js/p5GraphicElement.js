@@ -672,6 +672,185 @@ class p5Arc extends p5GraphicElement
     }
 }
 
+class p5Bezier extends p5GraphicElement
+{
+    constructor(command)
+    {
+        super(command);
+        this.x1 = command.getParameterValue(`x1`);
+        this.y1 = command.getParameterValue(`y1`);
+        this.x2 = command.getParameterValue(`x2`);
+        this.y2 = command.getParameterValue(`y2`);
+        this.x3 = command.getParameterValue(`x3`);
+        this.y3 = command.getParameterValue(`y3`);
+        this.x4 = command.getParameterValue(`x4`);
+        this.y4 = command.getParameterValue(`y4`);
+
+        this.sizeAnchor = 5;
+
+        // Drawing state
+        this.diamAnchor1 = 0;
+        this.diamAnchor2 = 0;
+        this.diamAnchor3 = 0;
+        this.diamAnchor4 = 0;
+        this.bAnimSegment12 = false;
+        this.bAnimSegment12Done = false;
+        this.bAnimSegment34 = false;
+        this.bAnimSegment34Done = false;
+
+        this.t = 0;
+
+        this.curve = new BezierCubic(
+            [
+                createVector(this.x1, this.y1),
+                createVector(this.x2, this.y2),
+                createVector(this.x3, this.y3),
+                createVector(this.x4, this.y4)
+            ]
+        );
+    }
+
+    beginAnimation()
+    {
+        let t = this.makeTimeline();
+        t
+        // Move to control point (x1,y1)
+        .add({
+            targets : g.myCanvas.posLines,
+            x : this.x1,
+            y : this.y1,
+            begin : () => { this.command.highlightParameters( ["x1","y1"] ) }
+        })
+        // Make the anchoir point grow        
+        .add({
+            targets : this,
+            diamAnchor1 : this.sizeAnchor
+        })
+        // Move to control point (x2,y2)
+        .add({
+            targets : g.myCanvas.posLines,
+            x : this.x2,
+            y : this.y2,
+            begin : () => { this.bAnimSegment12 = true; this.command.highlightParameters( ["x2","y2"] ) },
+            complete : () => { this.bAnimSegment12 = false; this.bAnimSegment12Done = true; }
+        })
+        // Make the anchoir point grow        
+        .add({
+            targets : this,
+            diamAnchor2 : this.sizeAnchor
+        })
+        // Move to control point (x3,y3)
+        .add({
+            targets : g.myCanvas.posLines,
+            x : this.x3,
+            y : this.y3,
+            begin : () => { this.command.highlightParameters( ["x3","y3"] ) }
+        })
+        // Make the anchoir point grow        
+        .add({
+            targets : this,
+            diamAnchor3 : this.sizeAnchor
+        })
+        .add({
+            targets : g.myCanvas.posLines,
+            x : this.x4,
+            y : this.y4,
+            begin : () => { this.bAnimSegment34 = true; this.command.highlightParameters( ["x4","y4"] ) },
+            complete : () => { this.bAnimSegment34 = false; this.bAnimSegment34Done = true; }
+        })
+        // Make the anchoir point grow        
+        .add({
+            targets : this,
+            diamAnchor4 : this.sizeAnchor
+        })
+        // Make the anchoir point grow        
+        .add({
+            targets : this,
+            t : 1.0,
+            duration : 1500
+        })
+
+
+        return this._playTimeline(t);
+    }
+
+    draw()
+    {
+        push();
+        if (this.t>0)
+            this.curve.draw({'t':this.t}) 
+
+        strokeWeight(1);
+
+        if (this.bAnimSegment12 || this.bAnimSegment12Done)
+        {
+            push();
+            stroke(200,0,0);
+            line(
+                this.x1,
+                this.y1,
+                this.bAnimSegment12Done ? this.x2 : g.myCanvas.posLines.x,
+                this.bAnimSegment12Done ? this.y2 : g.myCanvas.posLines.y
+            );
+            pop();
+        }
+
+        if (this.diamAnchor1 > 0)
+        {
+            push();
+            noStroke();
+            fill(0);
+            circle(this.x1,this.y1,this.diamAnchor1);
+            pop();
+        }
+
+        if (this.diamAnchor2 > 0)
+        {
+            push();
+            noStroke();
+            fill(200,0,0);
+            circle(this.x2,this.y2,this.diamAnchor2);
+            pop();
+        }
+
+
+        if (this.bAnimSegment34 || this.bAnimSegment34Done)
+        {
+            push();
+            stroke(200,0,0);
+            line(
+                this.x3,
+                this.y3,
+                this.bAnimSegment34Done ? this.x4 : g.myCanvas.posLines.x,
+                this.bAnimSegment34Done ? this.y4 : g.myCanvas.posLines.y
+            );
+            pop();
+        }
+
+        if (this.diamAnchor3 > 0)
+        {
+            push();
+            noStroke();
+            fill(200,0,0);
+            circle(this.x3,this.y3,this.diamAnchor3);
+            pop();
+        }
+
+        if (this.diamAnchor4 > 0)
+        {
+            push();
+            noStroke();
+            fill(0);
+            circle(this.x4,this.y4,this.diamAnchor4);
+            pop();
+        }
+
+        pop();
+    }
+
+}
+
+
 class p5BeginShape extends p5GraphicElement
 {
     constructor(command)
@@ -1009,6 +1188,7 @@ p5Reg.register("rectMode",     { params: ["mode"],                              
 p5Reg.register("square",       { params: ["x","y","w"],                          createGraphic: cmd => new p5Square(cmd) });
 p5Reg.register("triangle",     { params: ["x1","y1","x2","y2","x3","y3"],        createGraphic: cmd => new p5Triangle(cmd) });
 p5Reg.register("arc",          { params: ["x","y","w","h","astart","aend"],      createGraphic: cmd => new p5Arc(cmd) });
+p5Reg.register("bezier",       { params: ["x1","y1","x2","y2","x3","y3","x4","y4"], createGraphic: cmd => new p5Bezier(cmd) });
 p5Reg.register("beginShape",   { params: [],                                     createGraphic: cmd => new p5BeginShape(cmd) });
 p5Reg.register("vertex",       { params: ["x","y"],                              createGraphic: cmd => new p5Vertex(cmd) });
 p5Reg.register("endShape",     { params: ["mode"],                               createGraphic: cmd => new p5EndShape(cmd) });

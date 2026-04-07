@@ -17,5 +17,5 @@ You can try a few examples here : https://v3ga.github.io/p5LearnableProgramming/
 * [Relief-SingleLine](https://github.com/isdat-type/Relief-SingleLine)<br />*Relief SingleLine is a versatile sans serif “single-line” font with open paths oriented towards CNC (Computer Numerical Control) engraving and fab labs environments.*
 
 ## Ideas, TODOs
-* implement more functions from the p5js library. Here are the [implemented ones](https://github.com/v3ga/p5LearnableProgramming/blob/master/assets/js/p5GraphicElement.js#L800). 
+* implement more functions from the p5js library. Here are the [implemented ones](https://github.com/v3ga/p5LearnableProgramming/blob/master/assets/js/p5GraphicElement.js#L1176). 
 * Error handling would be awesome. 

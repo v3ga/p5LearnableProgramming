@@ -460,3 +460,15 @@ body
   border-radius: 3px;
 }
 
+.link-github
+{
+  position : absolute;
+  bottom:    5px;
+  right: 10px; 
+}
+
+.link-github img
+{
+  width: 30px;
+  height:30px;
+}

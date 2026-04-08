@@ -186,8 +186,11 @@ class p5Interpreter
     {
         let runMode = this.controller && this.controller.runMode;
 
-        this.variables.updateP5Value("width", typeof width !== "undefined" ? width : "-");
-        this.variables.updateP5Value("height", typeof height !== "undefined" ? height : "-");
+        // Display the user canvas size (createCanvas args), not the outer canvas including margins.
+        let userWidth = this.myCanvas && this.myCanvas.dim ? this.myCanvas.dim.x : "-";
+        let userHeight = this.myCanvas && this.myCanvas.dim ? this.myCanvas.dim.y : "-";
+        this.variables.updateP5Value("width", userWidth);
+        this.variables.updateP5Value("height", userHeight);
         this.variables.updateP5Value("frameCount", this._frameCount);
 
         let extraVars = ["stroke", "strokeWeight", "fill", "angleMode", "rectMode"];

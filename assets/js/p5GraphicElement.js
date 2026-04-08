@@ -489,6 +489,68 @@ class p5Square extends p5Rect
     }
 }
 
+class p5Quad extends p5GraphicElement
+{
+    constructor(command)
+    {
+        super(command);
+        this.vertices = [];
+        for (let i=1;i<=4;i++)
+            this.vertices.push( createVector( command.getParameterValue(`x${i}`), command.getParameterValue(`y${i}`)  ));
+        this.step = 0;
+        this.bAnimDone = false;
+    }
+
+    beginAnimation()
+    {
+        let t = this.makeTimeline();
+        for (let i=0; i<=4; i++)
+        {
+            t
+            .add({
+                targets : g.myCanvas.posLines,
+                x : this.vertices[i%4].x,
+                y : this.vertices[i%4].y,
+                duration : 1000,
+                begin : () => { this.step = i; this.command.highlightParameters( [`x${i+1}`, `y${i+1}`] )},
+                complete : () => {
+                    if (i==4)
+                        this.bAnimDone = true;
+                }
+            });
+        }
+
+        return this._playTimeline(t);        
+    }
+
+    draw()
+    {
+        let v = this.vertices;
+        if (this.bAnimDone)
+        {
+            quad(
+                v[0].x,v[0].y,
+                v[1].x,v[1].y,
+                v[2].x,v[2].y,
+                v[3].x,v[3].y
+            );
+        }
+        else 
+        {
+            push();
+            noFill();
+            for (let i=0; i<this.step-1; i++)
+            {
+                line( v[i].x, v[i].y, v[i+1].x, v[i+1].y );
+            }
+            if (this.step>=1)
+                line( v[this.step-1].x, v[this.step-1].y, g.myCanvas.posLines.x, g.myCanvas.posLines.y );
+            pop();
+        }
+    }
+
+}
+
 class p5Triangle extends p5GraphicElement
 {
     constructor(command)
@@ -570,6 +632,7 @@ class p5Arc extends p5GraphicElement
         this.bDrawDiameter  = false;
         this.bDrawAngle     = true;
         this.drawAngleDiam  = 40;
+        this.infosOpacity   = 1.0;
     }
 
     beginAnimation()
@@ -597,8 +660,8 @@ class p5Arc extends p5GraphicElement
             complete: () => {this.bDrawEllipse=false ; this.bDrawDiameter = false;  }
         }
         )
-        .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { this.bDrawDiameter = false; this.bDrawAngle = false;}
-        })
+        .add({targets : this, infosOpacity : 0, duration : 75})
+        .add({targets : this, pause : 0, duration : this.durationWait, complete: () => { this.bDrawDiameter = false; this.bDrawAngle = false;}})
 
         return this._playTimeline(t);
     }
@@ -631,7 +694,7 @@ class p5Arc extends p5GraphicElement
             push();
 
                 push();
-                stroke(200,0,0);
+                stroke(200,0,0,255*this.infosOpacity);
                 strokeWeight(1/g.myCanvas.scaleAxe.x);
                 noFill();
                 line(0,0,0.5*this.w*cos(this.astart),0.5*this.h*sin(this.astart))
@@ -644,9 +707,9 @@ class p5Arc extends p5GraphicElement
             if ( this.w > (this.drawAngleDiam + 60) )
             {
                 push();
-                stroke(200,0,0);
+                stroke(200,0,0,255*this.infosOpacity);
                 strokeWeight(1/g.myCanvas.scaleAxe.x);
-                fill(255,0,0,255);
+                fill(255,0,0,255*this.infosOpacity);
                 rotate(this.aend);
                 
                 let str_aend = ""+int(this.aend)+"°";
@@ -1173,27 +1236,28 @@ class p5Pop extends p5GraphicElement
 // Each p5 function is registered with its parameter names and
 // a factory function. To add a new function, just add a register() call.
 
-p5Reg.register("angleMode",    { params: ["mode"],                               createGraphic: cmd => new p5AngleMode(cmd) });
-p5Reg.register("background",   { params: ["grey"],                               createGraphic: cmd => new p5Background(cmd) });
-p5Reg.register("stroke",       { params: ["v1","v2","v3","v4"],                  createGraphic: cmd => new p5Stroke(cmd) });
-p5Reg.register("noStroke",     { params: [],                                     createGraphic: cmd => new p5NoStroke(cmd) });
-p5Reg.register("strokeWeight", { params: ["v"],                                  createGraphic: cmd => new p5StrokeWeight(cmd) });
-p5Reg.register("fill",         { params: ["v1","v2","v3","v4"],                  createGraphic: cmd => new p5Fill(cmd) });
-p5Reg.register("noFill",       { params: [],                                     createGraphic: cmd => new p5NoFill(cmd) });
-p5Reg.register("line",         { params: ["x1","y1","x2","y2"],                  createGraphic: cmd => new p5Line(cmd) });
-p5Reg.register("ellipse",      { params: ["x","y","w","h"],                      createGraphic: cmd => new p5Ellipse(cmd) });
-p5Reg.register("circle",       { params: ["x","y","d"],                          createGraphic: cmd => new p5Circle(cmd) });
-p5Reg.register("rect",         { params: ["x","y","w","h"],                      createGraphic: cmd => new p5Rect(cmd) });
-p5Reg.register("rectMode",     { params: ["mode"],                               createGraphic: cmd => new p5RectMode(cmd) });
-p5Reg.register("square",       { params: ["x","y","w"],                          createGraphic: cmd => new p5Square(cmd) });
-p5Reg.register("triangle",     { params: ["x1","y1","x2","y2","x3","y3"],        createGraphic: cmd => new p5Triangle(cmd) });
-p5Reg.register("arc",          { params: ["x","y","w","h","astart","aend"],      createGraphic: cmd => new p5Arc(cmd) });
+p5Reg.register("angleMode",    { params: ["mode"],                                  createGraphic: cmd => new p5AngleMode(cmd) });
+p5Reg.register("background",   { params: ["grey"],                                  createGraphic: cmd => new p5Background(cmd) });
+p5Reg.register("stroke",       { params: ["v1","v2","v3","v4"],                     createGraphic: cmd => new p5Stroke(cmd) });
+p5Reg.register("noStroke",     { params: [],                                        createGraphic: cmd => new p5NoStroke(cmd) });
+p5Reg.register("strokeWeight", { params: ["v"],                                     createGraphic: cmd => new p5StrokeWeight(cmd) });
+p5Reg.register("fill",         { params: ["v1","v2","v3","v4"],                     createGraphic: cmd => new p5Fill(cmd) });
+p5Reg.register("noFill",       { params: [],                                        createGraphic: cmd => new p5NoFill(cmd) });
+p5Reg.register("line",         { params: ["x1","y1","x2","y2"],                     createGraphic: cmd => new p5Line(cmd) });
+p5Reg.register("ellipse",      { params: ["x","y","w","h"],                         createGraphic: cmd => new p5Ellipse(cmd) });
+p5Reg.register("circle",       { params: ["x","y","d"],                             createGraphic: cmd => new p5Circle(cmd) });
+p5Reg.register("rect",         { params: ["x","y","w","h"],                         createGraphic: cmd => new p5Rect(cmd) });
+p5Reg.register("rectMode",     { params: ["mode"],                                  createGraphic: cmd => new p5RectMode(cmd) });
+p5Reg.register("square",       { params: ["x","y","w"],                             createGraphic: cmd => new p5Square(cmd) });
+p5Reg.register("quad",         { params: ["x1","y1","x2","y2","x3","y3", "x4","y4"],createGraphic: cmd => new p5Quad(cmd) });
+p5Reg.register("triangle",     { params: ["x1","y1","x2","y2","x3","y3"],           createGraphic: cmd => new p5Triangle(cmd) });
+p5Reg.register("arc",          { params: ["x","y","w","h","astart","aend"],         createGraphic: cmd => new p5Arc(cmd) });
 p5Reg.register("bezier",       { params: ["x1","y1","x2","y2","x3","y3","x4","y4"], createGraphic: cmd => new p5Bezier(cmd) });
-p5Reg.register("beginShape",   { params: [],                                     createGraphic: cmd => new p5BeginShape(cmd) });
-p5Reg.register("vertex",       { params: ["x","y"],                              createGraphic: cmd => new p5Vertex(cmd) });
-p5Reg.register("endShape",     { params: ["mode"],                               createGraphic: cmd => new p5EndShape(cmd) });
-p5Reg.register("translate",    { params: ["x","y"],                              createGraphic: cmd => new p5Translate(cmd) });
-p5Reg.register("rotate",       { params: ["angle"],                              createGraphic: cmd => new p5Rotate(cmd) });
-p5Reg.register("scale",        { params: ["sx","sy"],                            createGraphic: cmd => new p5Scale(cmd) });
-p5Reg.register("push",         { params: [],                                     createGraphic: cmd => new p5Push(cmd) });
-p5Reg.register("pop",          { params: [],                                     createGraphic: cmd => new p5Pop(cmd) });
+p5Reg.register("beginShape",   { params: [],                                        createGraphic: cmd => new p5BeginShape(cmd) });
+p5Reg.register("vertex",       { params: ["x","y"],                                 createGraphic: cmd => new p5Vertex(cmd) });
+p5Reg.register("endShape",     { params: ["mode"],                                  createGraphic: cmd => new p5EndShape(cmd) });
+p5Reg.register("translate",    { params: ["x","y"],                                 createGraphic: cmd => new p5Translate(cmd) });
+p5Reg.register("rotate",       { params: ["angle"],                                 createGraphic: cmd => new p5Rotate(cmd) });
+p5Reg.register("scale",        { params: ["sx","sy"],                               createGraphic: cmd => new p5Scale(cmd) });
+p5Reg.register("push",         { params: [],                                        createGraphic: cmd => new p5Push(cmd) });
+p5Reg.register("pop",          { params: [],                                        createGraphic: cmd => new p5Pop(cmd) });
